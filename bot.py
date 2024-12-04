@@ -1,78 +1,58 @@
-import logging
+import asyncio
 from aiogram import Bot, Dispatcher
+from aiogram.types import Message, PreCheckoutQuery, LabeledPrice
 from aiogram.filters import Command
-from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
-from finance.payment import get_paypal_access_token, create_payment
-from finance.withdrawal import get_paypal_access_token as get_withdrawal_token, create_payout
-from config import TELEGRAM_API_TOKEN
+from aiogram import F
+from config import TELEGRAM_API_TOKEN, PROVIDER_TOKEN
+from finance.keyboards import payment_keyboard
 
-# Логирование
-logging.basicConfig(level=logging.INFO)
-
-# Инициализация бота
+# Инициализация бота и диспетчера
 bot = Bot(token=TELEGRAM_API_TOKEN)
 dp = Dispatcher()
 
-# Кнопки для взаимодействия
-keyboard = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Оплатить"), KeyboardButton(text="Запросить возврат")]
-    ],
-    resize_keyboard=True
-)
-
-
-@dp.message(Command("start"))
-async def cmd_start(message: Message):
-    """
-    Команда /start
-    """
-    await message.answer(
-        "Привет! Я бот для работы с PayPal. Вы можете оплатить или запросить возврат.",
-        reply_markup=keyboard,
+# Хендлер для отправки инвойса
+async def send_invoice_handler(message: Message):  
+    prices = [LabeledPrice(label="XTR", amount=10)]  
+    await message.answer_invoice(  
+        title="Поддержка канала",  
+        description="Поддержать канал на 10 звёзд!",  
+        prices=prices,  
+        provider_token="",  
+        payload="channel_support",  
+        currency="XTR",  
+        reply_markup=payment_keyboard(),  
     )
 
+# Хендлер для предчекаут-обработки
+async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
+    await pre_checkout_query.answer(ok=True)
 
-@dp.message(lambda msg: msg.text == "Оплатить")
-async def handle_payment_request(message: Message):
-    """
-    Обработка запроса на оплату
-    """
-    try:
-        access_token = get_paypal_access_token()
-        payment_response = create_payment(
-            access_token=access_token,
-            amount="10.00",
-            currency="USD",
-        )
-        approval_url = next(link["href"] for link in payment_response["links"] if link["rel"] == "approval_url")
-        await message.answer(f"Для оплаты перейдите по ссылке: {approval_url}")
-    except Exception as e:
-        await message.answer(f"Ошибка при создании платежа: {e}")
+# Хендлер успешного платежа
+async def success_payment_handler(message: Message):
+    await message.answer(text="🥳 Спасибо за вашу поддержку! 🤗")
 
+# Хендлер сообщения о поддержке
+async def pay_support_handler(message: Message):
+    await message.answer(
+        text="Добровольные пожертвования не подразумевают возврат средств, "
+        "однако, если вы очень хотите вернуть средства - свяжитесь с нами."
+    )
 
-@dp.message(lambda msg: msg.text == "Запросить возврат")
-async def handle_refund_request(message: Message):
-    """
-    Обработка запроса на возврат
-    """
-    user_email = "receiver@example.com"  # Почта пользователя в PayPal
-    amount = "10.00"  # Сумма возврата
-    try:
-        access_token = get_withdrawal_token()
-        payout_response = create_payout(access_token, user_email, amount)
-        await message.answer(f"Выплата успешно отправлена: {payout_response}")
-    except Exception as e:
-        await message.answer(f"Ошибка при выполнении выплаты: {e}")
+# Регистрация хендлеров
+dp.message.register(send_invoice_handler, Command(commands="donate"))
+dp.pre_checkout_query.register(pre_checkout_handler)
+dp.message.register(success_payment_handler, F.successful_payment)
+dp.message.register(pay_support_handler, Command(commands="paysupport"))
 
-
+# Запуск бота
 async def main():
-    """
-    Основная функция запуска бота
-    """
-    await dp.start_polling(bot)
-
+    try:
+        print("Запуск бота...")
+        await dp.start_polling(bot)
+    except Exception as e:
+        print(f"Ошибка: {e}")
+    finally:
+        await bot.session.close()
 
 if __name__ == "__main__":
-    import asyncio
     asyncio.run(main())
