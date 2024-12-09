@@ -25,3 +25,10 @@ async def init_db(pool):
                 timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS languages (
+                chat_id BIGINT PRIMARY KEY,
+                language_code TEXT NOT NULL
+            )
+        """)
+
