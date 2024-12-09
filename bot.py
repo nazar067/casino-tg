@@ -1,58 +1,98 @@
-import asyncio
-from aiogram import Bot, Dispatcher
-from aiogram.types import Message, PreCheckoutQuery, LabeledPrice
+from aiogram import Bot, Dispatcher, Router
+from aiogram.types import Message, CallbackQuery, PreCheckoutQuery
 from aiogram.filters import Command
-from aiogram import F
-from config import TELEGRAM_API_TOKEN, PROVIDER_TOKEN
+from config import API_TOKEN
+from finance.payment import process_payment, handle_successful_payment
+from user.balance import get_user_balance
 from finance.keyboards import payment_keyboard
 
 # Инициализация бота и диспетчера
-bot = Bot(token=TELEGRAM_API_TOKEN)
+bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
+router = Router()
 
-# Хендлер для отправки инвойса
-async def send_invoice_handler(message: Message):  
-    prices = [LabeledPrice(label="XTR", amount=10)]  
-    await message.answer_invoice(  
-        title="Поддержка канала",  
-        description="Поддержать канал на 10 звёзд!",  
-        prices=prices,  
-        provider_token="",  
-        payload="channel_support",  
-        currency="XTR",  
-        reply_markup=payment_keyboard(),  
-    )
+@router.message(Command("start"))
+async def start_handler(message: Message):
+    """
+    Команда /start
+    """
+    await message.answer("👋 Добро пожаловать в наш бот! Здесь вы можете поддерживать проект звездами ⭐️.")
 
-# Хендлер для предчекаут-обработки
+
+@router.message(Command("donate"))
+async def donate_handler(message: Message):
+    """
+    Команда /donate для пополнения
+    """
+    # Используем клавиатуру из keyboards.py
+    await message.answer("Выберите сумму для пополнения:", reply_markup=payment_keyboard())
+
+
+@router.callback_query(lambda c: c.data.startswith("pay:"))
+async def pay_stars_handler(callback: CallbackQuery):
+    """
+    Обработка платежей с валютой XTR
+    """
+    amount = int(callback.data.split(":")[1])  # Получаем сумму из callback data
+    provider_token = ""
+
+    # Генерация инвойса
+    payment_data = await process_payment(callback, amount, provider_token)
+    if payment_data:
+        await callback.message.answer_invoice(**payment_data)        
+
+@router.pre_checkout_query()
 async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
-    await pre_checkout_query.answer(ok=True)
+    """
+    Обработка PreCheckoutQuery
+    """
+    await pre_checkout_query.answer(ok=True)  # Подтверждаем предчекаут
 
-# Хендлер успешного платежа
-async def success_payment_handler(message: Message):
-    await message.answer(text="🥳 Спасибо за вашу поддержку! 🤗")
+@router.message(lambda m: m.successful_payment)
+async def successful_payment_handler(message: Message):
+    """
+    Обработка успешной оплаты
+    """
+    user_id = message.from_user.id
+    amount = message.successful_payment.total_amount  # Конвертируем из копеек в целое число
+    pool = dp["db_pool"]
 
-# Хендлер сообщения о поддержке
-async def pay_support_handler(message: Message):
-    await message.answer(
-        text="Добровольные пожертвования не подразумевают возврат средств, "
-        "однако, если вы очень хотите вернуть средства - свяжитесь с нами."
-    )
+    # Обрабатываем успешную оплату через handle_successful_payment
+    final_amount = await handle_successful_payment(pool, user_id, amount)
 
-# Регистрация хендлеров
-dp.message.register(send_invoice_handler, Command(commands="donate"))
-dp.pre_checkout_query.register(pre_checkout_handler)
-dp.message.register(success_payment_handler, F.successful_payment)
-dp.message.register(pay_support_handler, Command(commands="paysupport"))
+    await message.answer(f"✅ Баланс успешно пополнен на {final_amount} ⭐️!")
 
-# Запуск бота
+@router.message(Command("balance"))
+async def balance_handler(message: Message):
+    """
+    Команда /balance для проверки баланса
+    """
+    pool = dp["db_pool"]
+    user_id = message.from_user.id
+    balance = await get_user_balance(pool, user_id)
+    await message.answer(f"💰 Ваш текущий баланс: {balance} ⭐️")
+
+
 async def main():
+    """
+    Запуск бота
+    """
+    # Подключение базы данных и роутера
+    pool = await get_db_pool(DATABASE_URL)
+    dp["db_pool"] = pool
+    await init_db(pool)
+    dp.include_router(router)
+
     try:
-        print("Запуск бота...")
+        print("Бот запущен!")
         await dp.start_polling(bot)
-    except Exception as e:
-        print(f"Ошибка: {e}")
     finally:
+        await pool.close()
         await bot.session.close()
 
+
 if __name__ == "__main__":
+    import asyncio
+    from config import DATABASE_URL
+    from db.db import get_db_pool, init_db
     asyncio.run(main())
