@@ -83,7 +83,7 @@ async def button_handler(message: Message):
         text, keyboard = await donate_handler(message, dp, user_language)
         await message.answer(text, reply_markup=keyboard)
     elif message.text == translations["withdraw"][user_language]:
-        await message.answer(await withdraw_handler(message, dp, user_language))
+        await message.answer(await withdraw_handler(message, dp))
 
 async def main():
     """
