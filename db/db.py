@@ -26,6 +26,14 @@ async def init_db(pool):
             )
         """)
         await conn.execute("""
+            CREATE TABLE IF NOT EXISTS withdrawals (
+                id SERIAL PRIMARY KEY,
+                transaction_id INT REFERENCES transactions(id) ON DELETE CASCADE,
+                amount INT NOT NULL,
+                timestamp TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        await conn.execute("""
             CREATE TABLE IF NOT EXISTS languages (
                 chat_id BIGINT PRIMARY KEY,
                 language_code TEXT NOT NULL

@@ -29,7 +29,7 @@ def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
         keyboard=[
             [
                 KeyboardButton(text=translations["donate"][language]),  # Кнопка "Пополнить"
-                KeyboardButton(text=translations["withdraw"][language]),  # Кнопка "Вывести"
+                KeyboardButton(text=translations["withdraw_btn"][language]),  # Кнопка "Вывести"
             ],
             [
                 KeyboardButton(text=translations["balance_btn"][language])  # Кнопка "Баланс" на отдельной строке

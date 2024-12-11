@@ -1,7 +1,8 @@
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message, CallbackQuery, PreCheckoutQuery
 from aiogram.filters import Command
-from telegram import ReplyKeyboardMarkup
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.context import FSMContext
 from config import API_TOKEN
 from finance.payment import process_payment, handle_successful_payment
 from handlers.balance_handler import balance_handler
@@ -12,9 +13,11 @@ from keyboards.keyboard import menu_keyboard, payment_keyboard
 from localisation.translations import translations
 from localisation.get_language import get_language
 from localisation.check_language import check_language
+from handlers.withdraw_handler import router as withdraw_router
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(storage=MemoryStorage())
+dp.include_router(withdraw_router)
 router = Router()
 
 @router.message(Command("start"))
@@ -70,7 +73,7 @@ async def successful_payment_handler(message: Message):
     await message.answer(f"✅ Баланс успешно пополнен на {final_amount} ⭐️!")
     
 @router.message()
-async def button_handler(message: Message):
+async def button_handler(message: Message, state: FSMContext):
     """
     Обработка всех кнопок на основе локализации
     """
@@ -82,8 +85,8 @@ async def button_handler(message: Message):
     elif message.text == translations["donate"][user_language]:
         text, keyboard = await donate_handler(message, dp, user_language)
         await message.answer(text, reply_markup=keyboard)
-    elif message.text == translations["withdraw"][user_language]:
-        await message.answer(await withdraw_handler(message, dp))
+    elif message.text == translations["withdraw_btn"][user_language]:
+        await withdraw_handler(message, dp, user_language, state)
 
 async def main():
     """
