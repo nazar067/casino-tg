@@ -39,6 +39,16 @@ translations = {
         "ru": "Вы можете вывести не более {available_stars} звёзд ⭐️.",
         "uk": "Ви можете вивести не більше {available_stars} зірок ⭐️.",
     },
+    "withdraw_success": {
+        "en": "Withdrawal successfully completed for the amount of {amount} ⭐️.\nDetails:\n{details}",
+        "ru": "Вывод успешно завершён на сумму {amount} ⭐️.\nДетали:\n{details}",
+        "uk": "Виведення успішно завершено на суму {amount} ⭐️.\nДеталі:\n{details}",
+    },
+    "withdraw_detail": {
+        "en": "Withdraw ID #{withdraw_id}, Transaction #{transaction_id}: -{amount} ⭐️",
+        "ru": "ID вывода #{withdraw_id}, Транзакция #{transaction_id}: -{amount} ⭐️",
+        "uk": "ID виведення #{withdraw_id}, Транзакція #{transaction_id}: -{amount} ⭐️",
+    },
     "invalid_amount": {
         "en": "Please enter a valid amount.",
         "ru": "Пожалуйста, введите корректное число.",

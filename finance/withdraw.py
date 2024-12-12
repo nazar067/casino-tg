@@ -4,6 +4,7 @@ from aiogram import Dispatcher
 from datetime import datetime, timedelta
 from finance.check_withdrawable_stars import get_withdrawable_stars
 from localisation.translations import translations
+from finance.transactions import mark_transaction_as_closed
 
 async def check_withdrawable_stars(pool, user_id):
     """
@@ -21,18 +22,18 @@ async def check_withdrawable_stars(pool, user_id):
         return True
     return False
 
-async def process_withdrawal(pool, user_id, amount):
+async def process_withdrawal(pool, user_id, amount, user_language):
     """
-    Обработка вывода звёзд
+    Обработка вывода звёзд.
     """
     async with pool.acquire() as connection:
         cutoff_date = datetime.now() - timedelta(days=21)
 
-        # Получаем доступные транзакции
+        # Получаем доступные транзакции, которые ещё не закрыты
         transactions = await connection.fetch("""
             SELECT id, amount
             FROM transactions
-            WHERE user_id = $1 AND timestamp <= $2
+            WHERE user_id = $1 AND timestamp <= $2 AND is_closed = FALSE
             ORDER BY timestamp ASC
         """, user_id, cutoff_date)
 
@@ -48,10 +49,11 @@ async def process_withdrawal(pool, user_id, amount):
 
             amount_to_withdraw = min(transaction_amount, remaining_to_withdraw)
 
-            # Добавляем запись в withdrawals
-            await connection.execute("""
+            # Добавляем запись в withdrawals и получаем ID вывода
+            withdraw_id = await connection.fetchval("""
                 INSERT INTO withdrawals (transaction_id, amount)
                 VALUES ($1, $2)
+                RETURNING id
             """, transaction_id, amount_to_withdraw)
 
             # Обновляем оставшийся баланс транзакции
@@ -61,10 +63,36 @@ async def process_withdrawal(pool, user_id, amount):
                 WHERE id = $2
             """, amount_to_withdraw, transaction_id)
 
-            withdrawals.append((transaction_id, amount_to_withdraw))
+            # Проверяем остаток транзакции: закрываем только если amount == 0
+            remaining_amount = await connection.fetchval("""
+                SELECT amount
+                FROM transactions
+                WHERE id = $1
+            """, transaction_id)
+
+            if remaining_amount == 0:
+                await mark_transaction_as_closed(pool, transaction_id)
+
+            withdrawals.append((withdraw_id, transaction_id, amount_to_withdraw))
             remaining_to_withdraw -= amount_to_withdraw
 
+        # Обновляем баланс пользователя в таблице `users`
+        await connection.execute("""
+            UPDATE users
+            SET balance = balance - $1
+            WHERE user_id = $2
+        """, amount, user_id)
+
+        # Формируем детали транзакций
         withdrawal_details = "\n".join(
-            f"Транзакция #{w[0]}: -{w[1]} ⭐️" for w in withdrawals
+            translations["withdraw_detail"][user_language].format(
+                withdraw_id=w[0], transaction_id=w[1], amount=w[2]
+            )
+            for w in withdrawals
         )
-        return f"Вывод успешно завершён на сумму {amount} ⭐️\nДетали:\n{withdrawal_details}"
+
+        # Формируем итоговое сообщение
+        return translations["withdraw_success"][user_language].format(
+            amount=amount, details=withdrawal_details
+        )
+        

@@ -22,13 +22,14 @@ async def init_db(pool):
                 id SERIAL PRIMARY KEY,
                 user_id BIGINT REFERENCES users(user_id),
                 amount INT NOT NULL,
+                is_closed BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS withdrawals (
                 id SERIAL PRIMARY KEY,
-                transaction_id INT REFERENCES transactions(id) ON DELETE CASCADE,
+                transaction_id INT NOT NULL REFERENCES transactions(id),
                 amount INT NOT NULL,
                 timestamp TIMESTAMP DEFAULT NOW()
             )

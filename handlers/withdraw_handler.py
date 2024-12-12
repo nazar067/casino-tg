@@ -79,7 +79,7 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
         return
 
     # Обрабатываем вывод
-    result_message = await process_withdrawal(db_pool, user_id, amount_to_withdraw)
+    result_message = await process_withdrawal(db_pool, user_id, amount_to_withdraw, user_language)
     await message.answer(result_message)
 
     # Сбрасываем состояние
