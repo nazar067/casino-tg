@@ -1,10 +1,6 @@
-import asyncpg
-from aiogram.types import Message
-from aiogram import Dispatcher
 from datetime import datetime, timedelta
-from finance.check_withdrawable_stars import get_withdrawable_stars
-from localisation.translations import translations
 from finance.transactions import mark_transaction_as_closed
+from localisation.translations import translations
 
 async def check_withdrawable_stars(pool, user_id):
     """

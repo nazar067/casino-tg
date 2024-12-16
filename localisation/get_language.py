@@ -1,5 +1,3 @@
-import asyncpg
-
 async def get_language(pool, chat_id, language_code):
     """
     Определение языка пользователя и запись в таблицу languages

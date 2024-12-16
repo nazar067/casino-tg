@@ -37,3 +37,14 @@ def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,  # Клавиатура будет адаптироваться под экран
     )
+    
+def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
+    """
+    Создание клавиатуры с кнопкой "Отмена".
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=translations["cancel_btn"][language],
+        callback_data="cancel_withdraw"
+    )
+    return builder.as_markup()

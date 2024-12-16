@@ -8,12 +8,10 @@ from finance.payment import process_payment, handle_successful_payment
 from handlers.balance_handler import balance_handler
 from handlers.donate_handler import donate_handler
 from handlers.withdraw_handler import withdraw_handler
-from user.balance import get_user_balance
-from keyboards.keyboard import menu_keyboard, payment_keyboard
-from localisation.translations import translations
-from localisation.get_language import get_language
 from localisation.check_language import check_language
+from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
+from localisation.translations import translations
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
@@ -21,22 +19,11 @@ dp.include_router(withdraw_router)
 router = Router()
 
 @router.message(Command("start"))
-async def start_handler(message: Message):
+async def start(message: Message):
     """
     Команда /start
     """
-    pool = dp["db_pool"]
-    chat_id = message.chat.id
-    language_code = message.from_user.language_code
-
-    await get_language(pool, chat_id, language_code)
-
-    user_language = await check_language(pool, chat_id)
-
-    await message.reply(
-        translations["welcome"][user_language],
-        reply_markup=menu_keyboard(user_language) 
-    )
+    await start_handler(message, dp)
 
 @router.callback_query(lambda c: c.data.startswith("pay:"))
 async def pay_stars_handler(callback: CallbackQuery):

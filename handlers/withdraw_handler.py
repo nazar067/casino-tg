@@ -3,7 +3,9 @@ from aiogram.types import Message
 from aiogram import Dispatcher
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from finance.withdraw import check_withdrawable_stars, get_withdrawable_stars, process_withdrawal
+from finance.check_withdrawable_stars import get_withdrawable_stars
+from finance.withdraw import check_withdrawable_stars, process_withdrawal
+from keyboards.keyboard import cancel_keyboard
 from localisation.check_language import check_language
 from localisation.translations import translations
 
@@ -28,9 +30,11 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
         )
         return
 
+    # Выводим сообщение с кнопкой "Отмена"
     await message.answer(
         translations["withdraw_available"][user_language].format(available_stars=available_stars) +
-        translations["withdraw"][user_language]
+        translations["withdraw"][user_language],
+        reply_markup=cancel_keyboard(user_language)
     )
 
     # Переходим в состояние ожидания суммы вывода
@@ -84,3 +88,15 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
 
     # Сбрасываем состояние
     await state.clear()
+
+@router.callback_query(lambda callback: callback.data == "cancel_withdraw")
+async def cancel_withdraw(callback_query, state: FSMContext):
+    """
+    Обработка кнопки "Отмена".
+    """
+    data = await state.get_data()
+    db_pool = data.get("db_pool")
+    user_language = await check_language(db_pool, callback_query.from_user.id)
+    await state.clear()
+    await callback_query.message.edit_reply_markup()  # Убираем клавиатуру
+    await callback_query.message.answer(translations["withdraw_cancelled"][user_language])

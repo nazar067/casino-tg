@@ -60,8 +60,18 @@ translations = {
         "uk": "💰 Ваш поточний баланс: {balance} ⭐️",
     },
     "balance_btn": {
-    "en": "💰 My balance ⭐️",
-    "ru": "💰 Мой баланс ⭐️",
-    "uk": "💰 Мій баланс ⭐️",
+        "en": "💰 My balance ⭐️",
+        "ru": "💰 Мой баланс ⭐️",
+        "uk": "💰 Мій баланс ⭐️",
     },
+    "cancel_btn":{
+        "en": "🚪 Cancel",
+        "ru": "🚪 Отмена",
+        "uk": "🚪 Скасувати",
+    },
+    "withdraw_cancelled": {
+        "en": "The withdrawal process has been cancelled.",
+        "ru": "Процесс вывода был отменён.",
+        "uk": "Процес виведення було скасовано."
+    }
 }
