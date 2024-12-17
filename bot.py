@@ -30,10 +30,9 @@ async def pay_stars_handler(callback: CallbackQuery):
     """
     Обработка платежей с валютой XTR
     """
-    amount = int(callback.data.split(":")[1])  # Получаем сумму из callback data
+    amount = int(callback.data.split(":")[1])
     provider_token = ""
 
-    # Генерация инвойса
     payment_data = await process_payment(callback, amount, provider_token)
     if payment_data:
         await callback.message.answer_invoice(**payment_data)        
@@ -43,7 +42,7 @@ async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
     """
     Обработка PreCheckoutQuery
     """
-    await pre_checkout_query.answer(ok=True)  # Подтверждаем предчекаут
+    await pre_checkout_query.answer(ok=True)
 
 @router.message(lambda m: m.successful_payment)
 async def successful_payment_handler(message: Message):
@@ -51,10 +50,9 @@ async def successful_payment_handler(message: Message):
     Обработка успешной оплаты
     """
     user_id = message.from_user.id
-    amount = message.successful_payment.total_amount  # Конвертируем из копеек в целое число
+    amount = message.successful_payment.total_amount
     pool = dp["db_pool"]
 
-    # Обрабатываем успешную оплату через handle_successful_payment
     final_amount = await handle_successful_payment(pool, user_id, amount)
 
     await message.answer(f"✅ Баланс успешно пополнен на {final_amount} ⭐️!")
@@ -79,7 +77,6 @@ async def main():
     """
     Запуск бота
     """
-    # Подключение базы данных и роутера
     pool = await get_db_pool(DATABASE_URL)
     dp["db_pool"] = pool
     await init_db(pool)

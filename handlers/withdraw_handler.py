@@ -21,7 +21,6 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
     pool = dp["db_pool"]
     user_id = message.from_user.id
 
-    # Проверяем доступность звёзд
     stars_available = await check_withdrawable_stars(pool, user_id)
     available_stars = await get_withdrawable_stars(pool, user_id)
     if not stars_available:
@@ -30,18 +29,16 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
         )
         return
 
-    # Выводим сообщение с кнопкой "Отмена"
     await message.answer(
         translations["withdraw_available"][user_language].format(available_stars=available_stars) +
         translations["withdraw"][user_language],
         reply_markup=cancel_keyboard(user_language)
     )
 
-    # Переходим в состояние ожидания суммы вывода
     await state.set_state(WithdrawalState.waiting_for_amount)
     await state.update_data(
         available_stars=available_stars,
-        db_pool=pool  # Сохраняем pool для использования в следующем шаге
+        db_pool=pool
     )
 
 
@@ -50,10 +47,9 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
     """
     Ожидание ввода суммы для вывода.
     """
-    # Извлекаем данные состояния
     data = await state.get_data()
     available_stars = data.get("available_stars")
-    db_pool = data.get("db_pool")  # Получаем db_pool из состояния
+    db_pool = data.get("db_pool")
 
     if not db_pool:
         await message.answer("Ошибка: подключение к базе данных не найдено.")
@@ -61,17 +57,14 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
 
     user_id = message.from_user.id
 
-    # Извлекаем язык пользователя
     user_language = await check_language(db_pool, user_id)
 
-    # Проверяем, что введённое значение — это число
     if not message.text.isdigit():
         await message.answer(translations["invalid_amount"][user_language])
         return
 
     amount_to_withdraw = int(message.text)
 
-    # Проверяем минимальное и максимальное значение
     if amount_to_withdraw < 1000:
         await message.answer(translations["min_withdraw"][user_language])
         return
@@ -82,11 +75,9 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
         )
         return
 
-    # Обрабатываем вывод
     result_message = await process_withdrawal(db_pool, user_id, amount_to_withdraw, user_language)
     await message.answer(result_message)
 
-    # Сбрасываем состояние
     await state.clear()
 
 @router.callback_query(lambda callback: callback.data == "cancel_withdraw")
@@ -94,9 +85,14 @@ async def cancel_withdraw(callback_query, state: FSMContext):
     """
     Обработка кнопки "Отмена".
     """
-    data = await state.get_data()
-    db_pool = data.get("db_pool")
-    user_language = await check_language(db_pool, callback_query.from_user.id)
     await state.clear()
-    await callback_query.message.edit_reply_markup()  # Убираем клавиатуру
-    await callback_query.message.answer(translations["withdraw_cancelled"][user_language])
+
+    await callback_query.message.delete()
+
+    try:
+        await callback_query.bot.delete_message(
+            chat_id=callback_query.from_user.id,
+            message_id=callback_query.message.message_id - 1
+        )
+    except Exception:
+        pass

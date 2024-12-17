@@ -11,7 +11,7 @@ async def process_payment(callback, amount, provider_token):
         title="Пополнение звёзд",
         description=f"Пополнение на {amount} ⭐️",
         provider_token=provider_token,
-        currency="XTR",  # Замените на нужную валюту
+        currency="XTR",
         prices=prices,
         payload=f"user_id:{callback.from_user.id}"
     )
@@ -20,10 +20,8 @@ async def handle_successful_payment(pool, user_id, amount):
     """
     Обработка успешной оплаты
     """
-    # Конвертируем сумму из копеек
     final_amount = calculate_final_amount(amount)
 
-    # Обновляем баланс и записываем транзакцию
     async with pool.acquire() as connection:
         await connection.execute("""
             INSERT INTO users (user_id, balance) VALUES ($1, 0)

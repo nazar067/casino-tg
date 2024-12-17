@@ -25,7 +25,6 @@ async def process_withdrawal(pool, user_id, amount, user_language):
     async with pool.acquire() as connection:
         cutoff_date = datetime.now() - timedelta(days=21)
 
-        # Получаем доступные транзакции, которые ещё не закрыты
         transactions = await connection.fetch("""
             SELECT id, amount
             FROM transactions
@@ -45,21 +44,18 @@ async def process_withdrawal(pool, user_id, amount, user_language):
 
             amount_to_withdraw = min(transaction_amount, remaining_to_withdraw)
 
-            # Добавляем запись в withdrawals и получаем ID вывода
             withdraw_id = await connection.fetchval("""
                 INSERT INTO withdrawals (transaction_id, amount)
                 VALUES ($1, $2)
                 RETURNING id
             """, transaction_id, amount_to_withdraw)
 
-            # Обновляем оставшийся баланс транзакции
             await connection.execute("""
                 UPDATE transactions
                 SET amount = amount - $1
                 WHERE id = $2
             """, amount_to_withdraw, transaction_id)
 
-            # Проверяем остаток транзакции: закрываем только если amount == 0
             remaining_amount = await connection.fetchval("""
                 SELECT amount
                 FROM transactions
@@ -72,14 +68,12 @@ async def process_withdrawal(pool, user_id, amount, user_language):
             withdrawals.append((withdraw_id, transaction_id, amount_to_withdraw))
             remaining_to_withdraw -= amount_to_withdraw
 
-        # Обновляем баланс пользователя в таблице `users`
         await connection.execute("""
             UPDATE users
             SET balance = balance - $1
             WHERE user_id = $2
         """, amount, user_id)
 
-        # Формируем детали транзакций
         withdrawal_details = "\n".join(
             translations["withdraw_detail"][user_language].format(
                 withdraw_id=w[0], transaction_id=w[1], amount=w[2]
@@ -87,7 +81,6 @@ async def process_withdrawal(pool, user_id, amount, user_language):
             for w in withdrawals
         )
 
-        # Формируем итоговое сообщение
         return translations["withdraw_success"][user_language].format(
             amount=amount, details=withdrawal_details
         )

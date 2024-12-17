@@ -13,13 +13,10 @@ async def start_handler(message: Message, dp: Dispatcher):
     chat_id = message.chat.id
     language_code = message.from_user.language_code
 
-    # Установить язык пользователя
     await get_language(pool, chat_id, language_code)
 
-    # Проверить текущий язык пользователя
     user_language = await check_language(pool, chat_id)
 
-    # Ответное сообщение
     await message.reply(
         translations["welcome"][user_language],
         reply_markup=menu_keyboard(user_language)

@@ -11,13 +11,12 @@ def payment_keyboard(language: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     text = translations['donate'][language][2:-2]
 
-    # Кнопки для выбора суммы оплаты
     for amount in [3, 50, 100, 200, 500, 1000]:
         builder.button(
             text=f"{text} на {amount} ⭐️",
             callback_data=f"pay:{amount}"
         )
-    builder.adjust(2)  # Расположить кнопки по две в ряд
+    builder.adjust(2)
 
     return builder.as_markup()
 
@@ -28,14 +27,14 @@ def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text=translations["donate"][language]),  # Кнопка "Пополнить"
-                KeyboardButton(text=translations["withdraw_btn"][language]),  # Кнопка "Вывести"
+                KeyboardButton(text=translations["donate"][language]),
+                KeyboardButton(text=translations["withdraw_btn"][language]),
             ],
             [
-                KeyboardButton(text=translations["balance_btn"][language])  # Кнопка "Баланс" на отдельной строке
+                KeyboardButton(text=translations["balance_btn"][language])
             ]
         ],
-        resize_keyboard=True,  # Клавиатура будет адаптироваться под экран
+        resize_keyboard=True,
     )
     
 def cancel_keyboard(language: str) -> InlineKeyboardMarkup:

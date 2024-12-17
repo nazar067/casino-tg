@@ -7,7 +7,6 @@ async def check_language(pool, chat_id):
             SELECT language_code FROM languages WHERE chat_id = $1
         """, chat_id)
 
-    # Если язык не русский или украинский, использовать английский
     if language_code not in ["ru", "uk"]:
         return "en"
     return language_code

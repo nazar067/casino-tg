@@ -10,5 +10,4 @@ async def donate_handler(message: Message, dp: Dispatcher, user_language: str)->
     pool = dp["db_pool"]
     chat_id = message.chat.id
 
-    # Отправляем локализованную клавиатуру для пополнения
     return translations["welcome"][user_language], payment_keyboard(user_language)
