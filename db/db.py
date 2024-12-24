@@ -31,6 +31,7 @@ async def init_db(pool):
                 id SERIAL PRIMARY KEY,
                 transaction_id INT NOT NULL REFERENCES transactions(id),
                 amount INT NOT NULL,
+                is_closed BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
