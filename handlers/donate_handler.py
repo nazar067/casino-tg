@@ -10,4 +10,4 @@ async def donate_handler(message: Message, dp: Dispatcher, user_language: str)->
     pool = dp["db_pool"]
     chat_id = message.chat.id
 
-    return translations["welcome"][user_language], payment_keyboard(user_language)
+    return translations["donate_text"][user_language], payment_keyboard(user_language)

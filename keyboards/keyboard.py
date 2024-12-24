@@ -11,7 +11,7 @@ def payment_keyboard(language: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     text = translations['donate'][language][2:-2]
 
-    for amount in [3, 50, 100, 200, 500, 1000]:
+    for amount in amounts:
         builder.button(
             text=f"{text} на {amount} ⭐️",
             callback_data=f"pay:{amount}"
