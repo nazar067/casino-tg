@@ -5,17 +5,20 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from config import API_TOKEN
 from finance.payment import process_payment, handle_successful_payment
+from games.dice.register_game import create_game_handler
 from handlers.balance_handler import balance_handler
 from handlers.donate_handler import donate_handler
 from handlers.withdraw_handler import withdraw_handler
 from localisation.check_language import check_language
 from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
+from games.dice.join_game import join_game_handler, router as join_game_router
 from localisation.translations import translations
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(withdraw_router)
+dp.include_router(join_game_router)
 router = Router()
 
 @router.message(Command("start"))
@@ -24,6 +27,23 @@ async def start(message: Message):
     Команда /start
     """
     await start_handler(message, dp)
+    
+@router.message(Command("dice"))
+async def dice_handler(message: Message, state: FSMContext):
+    """
+    Команда /dice для создания игры в кости.
+    """
+    pool = dp["db_pool"]
+    await create_game_handler(message, pool, dp)
+    
+
+@router.callback_query(lambda callback: callback.data.startswith("join_game:"))
+async def join_dice_handler(callback: CallbackQuery):
+    """
+    Обработка нажатия кнопки для присоединения к игре.
+    """
+    pool = dp["db_pool"]  # Извлекаем pool из Dispatcher
+    await join_game_handler(callback, pool)
 
 @router.callback_query(lambda c: c.data.startswith("pay:"))
 async def pay_stars_handler(callback: CallbackQuery):

@@ -41,4 +41,14 @@ async def init_db(pool):
                 language_code TEXT NOT NULL
             )
         """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS gameDice (
+                id SERIAL PRIMARY KEY,
+                player1_id BIGINT NOT NULL,
+                player2_id BIGINT,
+                winner_id BIGINT,
+                bet INT NOT NULL,
+                is_closed BOOLEAN DEFAULT FALSE
+            )
+        """)
 

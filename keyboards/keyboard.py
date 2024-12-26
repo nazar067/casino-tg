@@ -47,3 +47,14 @@ def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
         callback_data="cancel_withdraw"
     )
     return builder.as_markup()
+
+def join_dice_button(game_id: int, bet: int, language: str) -> InlineKeyboardMarkup:
+    """
+    Создаёт клавиатуру с кнопкой для присоединения к игре.
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=translations["join_dice_btn"][language].format(bet=bet),
+        callback_data="join_game:" + str(game_id)
+    )
+    return builder.as_markup()
