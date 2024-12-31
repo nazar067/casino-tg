@@ -1,6 +1,8 @@
 from aiogram.types import CallbackQuery
 from aiogram import Router
 
+from user.balance import get_user_balance
+
 router = Router()
 
 async def join_game_handler(callback: CallbackQuery, pool):
@@ -29,6 +31,11 @@ async def join_game_handler(callback: CallbackQuery, pool):
 
         if game["player2_id"] is not None:
             await callback.answer("⚠️ У этой игры уже есть второй игрок.", show_alert=True)
+            return
+
+        user_balance = await get_user_balance(pool, user_id)
+        if user_balance < game["bet"]:
+            await callback.answer("⚠️ Недостаточно звёзд для присоединения к игре.", show_alert=True)
             return
 
         # Обновляем данные игры

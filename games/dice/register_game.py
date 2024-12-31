@@ -1,9 +1,9 @@
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message
 from aiogram import Dispatcher, Router
-from aiogram.fsm.context import FSMContext
 
 from keyboards.keyboard import join_dice_button
 from localisation.check_language import check_language
+from user.balance import get_user_balance
 
 router = Router()
 
@@ -24,6 +24,11 @@ async def create_game_handler(message: Message, pool, dp: Dispatcher):
             raise ValueError
     except (IndexError, ValueError):
         await message.answer("⚠️ Пожалуйста, укажите ставку после команды. Пример: /dice 100")
+        return
+
+    user_balance = await get_user_balance(pool, user_id)
+    if user_balance < bet:
+        await message.answer("⚠️ Недостаточно звёзд для создания игры.")
         return
 
     # Добавляем запись в базу данных
