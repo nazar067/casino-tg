@@ -1,48 +1,53 @@
 from aiogram.types import Message
 from aiogram import Dispatcher, Router
 
-from keyboards.keyboard import join_dice_button
+from localisation.translations import translations
 from localisation.check_language import check_language
 from user.balance import get_user_balance
+from keyboards.keyboard import game_buttons
 
 router = Router()
 
-async def create_game_handler(message: Message, pool, dp: Dispatcher):
+async def create_game_handler(message: Message, pool, state):
     """
     Создание новой игры в кости.
     """
     user_id = message.from_user.id
-    pool = dp["db_pool"]
-    chat_id = message.chat.id
-
-    user_language = await check_language(pool, chat_id)
-
-    # Извлекаем ставку
+    user_language = await check_language(pool, message.chat.id)
     try:
         bet = int(message.text.split(maxsplit=1)[1])
         if bet <= 0:
             raise ValueError
     except (IndexError, ValueError):
-        await message.answer("⚠️ Пожалуйста, укажите ставку после команды. Пример: /dice 100")
+        await message.answer(translations["register_help_msg"][user_language])
         return
 
+    # Проверяем баланс игрока
     user_balance = await get_user_balance(pool, user_id)
     if user_balance < bet:
-        await message.answer("⚠️ Недостаточно звёзд для создания игры.")
+        await message.answer(translations["register_no_stars_msg"][user_language])
         return
 
-    # Добавляем запись в базу данных
     async with pool.acquire() as connection:
         game_id = await connection.fetchval("""
-            INSERT INTO gameDice (player1_id, bet)
-            VALUES ($1, $2)
+            INSERT INTO gameDice (player1_id, bet, is_closed)
+            VALUES ($1, $2, FALSE)
             RETURNING id
         """, user_id, bet)
 
-    # Отправляем сообщение с кнопкой присоединения
-    await message.answer(
-        f"🎲 Игра #{game_id} создана! Ставка: {bet}.\n\nОжидаем второго игрока.",
-        reply_markup=join_dice_button(game_id, bet, user_language)
+    # Сохраняем ID сообщения команды и добавляем в состояние
+    creator_message_id = message.message_id
+    game_message = await message.answer(
+        translations["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
+        reply_markup=game_buttons(game_id, bet, user_language)
+    )
+    game_message_id = game_message.message_id
+
+    # Сохраняем данные игры в состояние
+    await state.update_data(
+        creator_message_id=creator_message_id,
+        game_message_id=game_message_id,
+        game_id=game_id
     )
 
 # Регистрация хендлеров в роутере

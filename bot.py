@@ -13,12 +13,14 @@ from localisation.check_language import check_language
 from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
+from games.dice.cancel_game import cancel_game_handler, router as cancel_game_router
 from localisation.translations import translations
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(withdraw_router)
 dp.include_router(join_game_router)
+dp.include_router(cancel_game_router)
 router = Router()
 
 @router.message(Command("start"))
@@ -34,7 +36,7 @@ async def dice_handler(message: Message, state: FSMContext):
     Команда /dice для создания игры в кости.
     """
     pool = dp["db_pool"]
-    await create_game_handler(message, pool, dp)
+    await create_game_handler(message, pool, state)
     
 
 @router.callback_query(lambda callback: callback.data.startswith("join_game:"))
@@ -42,8 +44,16 @@ async def join_dice_handler(callback: CallbackQuery):
     """
     Обработка нажатия кнопки для присоединения к игре.
     """
-    pool = dp["db_pool"]  # Извлекаем pool из Dispatcher
+    pool = dp["db_pool"]
     await join_game_handler(callback, pool)
+
+@router.callback_query(lambda callback: callback.data.startswith("cancel_game:"))
+async def cancel_dice_handler(callback: CallbackQuery, state: FSMContext):
+    """
+    Обработка нажатия кнопки для отмены игры.
+    """
+    pool = dp["db_pool"]
+    await cancel_game_handler(callback, pool, state)
 
 @router.callback_query(lambda c: c.data.startswith("pay:"))
 async def pay_stars_handler(callback: CallbackQuery):

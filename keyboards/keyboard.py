@@ -1,5 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from localisation.translations import translations
 
 amounts = [3, 50, 100, 200, 500, 1000] 
@@ -37,6 +37,27 @@ def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True,
     )
     
+def game_buttons(game_id: int, bet: int, language: str) -> InlineKeyboardMarkup:
+    """
+    Создаёт клавиатуру с кнопками для игры (Присоединиться и Отмена).
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=translations["cancel_btn"][language],
+                    callback_data=f"cancel_game:{game_id}"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=translations["join_dice_btn"][language].format(bet=bet),
+                    callback_data=f"join_game:{game_id}"
+                )
+            ]
+        ]
+    )
+    
 def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
     """
     Создание клавиатуры с кнопкой "Отмена".
@@ -45,16 +66,5 @@ def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
     builder.button(
         text=translations["cancel_btn"][language],
         callback_data="cancel_withdraw"
-    )
-    return builder.as_markup()
-
-def join_dice_button(game_id: int, bet: int, language: str) -> InlineKeyboardMarkup:
-    """
-    Создаёт клавиатуру с кнопкой для присоединения к игре.
-    """
-    builder = InlineKeyboardBuilder()
-    builder.button(
-        text=translations["join_dice_btn"][language].format(bet=bet),
-        callback_data="join_game:" + str(game_id)
     )
     return builder.as_markup()

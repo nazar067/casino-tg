@@ -1,32 +1,54 @@
-# games/cancel_game.py
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram import Router
-from games.dice.register_game import active_games
+
+from localisation.translations import translations
+from localisation.check_language import check_language
 
 router = Router()
 
-@router.callback_query(lambda callback: callback.data.startswith("cancel_game:"))
-async def cancel_game_handler(callback: CallbackQuery):
+async def cancel_game_handler(callback: CallbackQuery, pool, state):
     """
-    Обработчик для отмены игры.
+    Обработка кнопки отмены игры.
     """
-    game_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
+    game_id = int(callback.data.split(":")[1])
+    chat_id = callback.message.chat.id
+    user_language = await check_language(pool, chat_id)
 
-    # Проверяем, существует ли игра
-    if game_id not in active_games:
-        await callback.answer("⚠️ Игра не найдена или уже завершена.", show_alert=True)
-        return
+    async with pool.acquire() as connection:
+        game = await connection.fetchrow("""
+            SELECT * FROM gameDice WHERE id = $1 AND is_closed = FALSE
+        """, game_id)
 
-    game = active_games[game_id]
+        if not game:
+            await callback.answer(translations["cancel_error_msg"][user_language], show_alert=True)
+            return
 
-    # Проверяем, что только создатель игры может её отменить
-    if game["creator"] != user_id:
-        await callback.answer("⚠️ Только создатель игры может её отменить.", show_alert=True)
-        return
+        if game["player1_id"] != user_id:
+            await callback.answer(translations["cancel_creator_error_msg"][user_language], show_alert=True)
+            return
 
-    # Удаляем игру из активных
-    del active_games[game_id]
+        # Удаляем игру из базы данных
+        await connection.execute("""
+            DELETE FROM gameDice WHERE id = $1
+        """, game_id)
 
-    await callback.message.edit_text(f"❌ Игра #{game_id} была отменена создателем.")
-    await callback.answer()
+    # Извлекаем данные из состояния
+    data = await state.get_data()
+    creator_message_id = data.get("creator_message_id")
+    game_message_id = data.get("game_message_id")
+
+    # Удаляем сообщения
+    try:
+        try:
+            if creator_message_id:
+                await callback.bot.delete_message(callback.message.chat.id, creator_message_id)
+        finally:    
+            if game_message_id:
+                await callback.bot.delete_message(callback.message.chat.id, game_message_id)
+    except Exception as e:
+        print(f"Ошибка удаления сообщений: {e}")
+
+    # Очищаем состояние
+    await state.clear()
+    await callback.answer(translations["cancel_success_msg"][user_language])
