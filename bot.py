@@ -96,10 +96,10 @@ async def button_handler(message: Message, state: FSMContext):
     user_language = await check_language(pool, message.chat.id)
 
     if message.text == translations["balance_btn"][user_language]:
-        await message.answer(await balance_handler(message, dp, user_language))
+        await message.reply(await balance_handler(message, dp, user_language))
     elif message.text == translations["donate"][user_language]:
         text, keyboard = await donate_handler(message, dp, user_language)
-        await message.answer(text, reply_markup=keyboard)
+        await message.reply(text, reply_markup=keyboard)
     elif message.text == translations["withdraw_btn"][user_language]:
         await withdraw_handler(message, dp, user_language, state)
 

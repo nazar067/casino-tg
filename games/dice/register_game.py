@@ -22,7 +22,7 @@ async def create_game_handler(message: Message, pool, state):
         """, user_id)
 
     if existing_game:
-        await message.answer(translations["error_already_in_game_msg"][user_language])
+        await message.reply(translations["error_already_in_game_msg"][user_language])
         return
 
     try:

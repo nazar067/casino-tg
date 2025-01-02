@@ -23,12 +23,12 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
     stars_available = await check_withdrawable_stars(pool, user_id)
     available_stars = await get_withdrawable_stars(pool, user_id)
     if not stars_available:
-        await message.answer(
+        await message.reply(
             translations["withdraw_unavailable"][user_language].format(available_stars=available_stars)
         )
         return
 
-    sent_message = await message.answer(
+    sent_message = await message.reply(
         translations["withdraw_available"][user_language].format(available_stars=available_stars) +
         translations["withdraw"][user_language],
         reply_markup=cancel_keyboard(user_language)
@@ -59,7 +59,7 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
     user_language = await check_language(db_pool, user_id)
 
     if not message.text.isdigit():
-        error_message = await message.answer(translations["invalid_amount"][user_language])
+        error_message = await message.reply(translations["invalid_amount"][user_language])
         message_ids.append(error_message.message_id)
         await state.update_data(message_ids=message_ids)
         return
@@ -67,13 +67,13 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
     amount_to_withdraw = int(message.text)
 
     if amount_to_withdraw < 1000:
-        error_message = await message.answer(translations["min_withdraw"][user_language])
+        error_message = await message.reply(translations["min_withdraw"][user_language])
         message_ids.append(error_message.message_id)
         await state.update_data(message_ids=message_ids)
         return
 
     if amount_to_withdraw > available_stars:
-        error_message = await message.answer(
+        error_message = await message.reply(
             translations["max_withdraw"][user_language].format(available_stars=available_stars)
         )
         message_ids.append(error_message.message_id)

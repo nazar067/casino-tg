@@ -63,4 +63,4 @@ async def join_game_handler(callback: CallbackQuery, pool):
             game_id=game_id, player1_id=game['player1_id'], user_id=user_id
         )
     )
-    await callback.answer("Вы успешно присоединились к игре!")
+    await callback.answer(translations["succes_join_msg"][user_language])
