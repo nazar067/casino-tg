@@ -17,6 +17,10 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
     """
     Хендлер для обработки кнопки "Вывести".
     """
+    if message.chat.type != "private":
+        await message.reply(translations["withdraw_private_chat_error"][user_language])
+        return
+    
     pool = dp["db_pool"]
     user_id = message.from_user.id
 

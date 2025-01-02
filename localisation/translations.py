@@ -54,6 +54,11 @@ translations = {
         "ru": "ID вывода #{withdraw_id}, Транзакция #{transaction_id}: -{amount} ⭐️",
         "uk": "ID виведення #{withdraw_id}, Транзакція #{transaction_id}: -{amount} ⭐️",
     },
+    "withdraw_private_chat_error": {
+        "en": "⚠️ This command is only available in private messages.",
+        "ru": "⚠️ Эта команда доступна только в личных сообщениях.",
+        "uk": "⚠️ Ця команда доступна тільки в особистих повідомленнях.",
+    },
     "invalid_amount": {
         "en": "Please enter a valid amount.",
         "ru": "Пожалуйста, введите корректное число.",
