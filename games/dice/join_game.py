@@ -20,7 +20,16 @@ async def join_game_handler(callback: CallbackQuery, pool):
         await callback.answer("Ошибка: подключение к базе данных отсутствует.", show_alert=True)
         return
 
+    # Проверяем, участвует ли пользователь уже в игре
     async with pool.acquire() as connection:
+        existing_game = await connection.fetchrow("""
+            SELECT id FROM gameDice WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
+        """, user_id)
+
+        if existing_game:
+            await callback.answer(translations["error_already_in_game_msg"][user_language], show_alert=True)
+            return
+
         game = await connection.fetchrow("""
             SELECT * FROM gameDice WHERE id = $1 AND is_closed = FALSE
         """, game_id)
@@ -50,6 +59,8 @@ async def join_game_handler(callback: CallbackQuery, pool):
         """, user_id, game_id)
 
     await callback.message.edit_text(
-        translations["game_start_msg"][user_language].format(game_id=game_id, player1_id=game['player1_id'], user_id=user_id)
+        translations["game_start_msg"][user_language].format(
+            game_id=game_id, player1_id=game['player1_id'], user_id=user_id
+        )
     )
     await callback.answer("Вы успешно присоединились к игре!")

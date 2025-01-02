@@ -139,4 +139,9 @@ translations = {
         "ru": "Вы успешно присоединились к игре!",
         "uk": "Ви успішно приєдналися до гри!",
     },
+    "error_already_in_game_msg": {
+        "en": "⚠️ You are already participating in a game. Please finish it first.",
+        "ru": "⚠️ Вы уже участвуете в игре. Пожалуйста, завершите её.",
+        "uk": "⚠️ Ви вже берете участь у грі. Будь ласка, завершіть її."
+    },
 }

@@ -14,6 +14,17 @@ async def create_game_handler(message: Message, pool, state):
     """
     user_id = message.from_user.id
     user_language = await check_language(pool, message.chat.id)
+
+    # Проверяем, участвует ли пользователь уже в игре
+    async with pool.acquire() as connection:
+        existing_game = await connection.fetchrow("""
+            SELECT id FROM gameDice WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
+        """, user_id)
+
+    if existing_game:
+        await message.answer(translations["error_already_in_game_msg"][user_language])
+        return
+
     try:
         bet = int(message.text.split(maxsplit=1)[1])
         if bet <= 0:
