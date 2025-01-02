@@ -48,7 +48,10 @@ async def init_db(pool):
                 player2_id BIGINT,
                 winner_id BIGINT,
                 bet INT NOT NULL,
-                is_closed BOOLEAN DEFAULT FALSE
+                number1 INT,
+                number2 INT,
+                is_closed BOOLEAN DEFAULT FALSE,
+                timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
 
