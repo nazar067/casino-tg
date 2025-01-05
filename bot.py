@@ -14,6 +14,7 @@ from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
 from games.dice.cancel_game import cancel_game_handler, router as cancel_game_router
+from games.dice.process_game import handle_dice_roll, router as process_game_router
 from localisation.translations import translations
 
 bot = Bot(token=API_TOKEN)
@@ -21,6 +22,7 @@ dp = Dispatcher(storage=MemoryStorage())
 dp.include_router(withdraw_router)
 dp.include_router(join_game_router)
 dp.include_router(cancel_game_router)
+dp.include_router(process_game_router)
 router = Router()
 
 @router.message(Command("start"))
@@ -54,6 +56,14 @@ async def cancel_dice_handler(callback: CallbackQuery, state: FSMContext):
     """
     pool = dp["db_pool"]
     await cancel_game_handler(callback, pool, state)
+
+@router.message(lambda message: message.dice)
+async def dice_roll_handler(message: Message):
+    """
+    Обработка броска кубика игроками.
+    """
+    pool = dp["db_pool"]
+    await handle_dice_roll(pool, message)
 
 @router.callback_query(lambda c: c.data.startswith("pay:"))
 async def pay_stars_handler(callback: CallbackQuery):
