@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram import Router
 from datetime import datetime
+from finance.account import account_addition, account_withdrawal
 
 router = Router()
 
@@ -71,15 +72,29 @@ async def determine_winner(pool, game_id):
         if not game or game["number1"] is None or game["number2"] is None:
             return "⚠️ Невозможно определить победителя: игра не завершена."
 
+        bet = game["bet"]
+        player1_id = game["player1_id"]
+        player2_id = game["player2_id"]
+        
         if game["number1"] > game["number2"]:
-            winner_id = game["player1_id"]
+            winner_id = player1_id
+            loser_id = player2_id
             winner_message = f"🎉 Победитель: Игрок 1 (ID: {winner_id})! 🎲"
         elif game["number1"] < game["number2"]:
-            winner_id = game["player2_id"]
+            winner_id = player2_id
+            loser_id = player1_id
             winner_message = f"🎉 Победитель: Игрок 2 (ID: {winner_id})! 🎲"
         else:
             winner_id = None
+            loser_id = None
             winner_message = "🎲 Ничья! Оба игрока выбросили одинаковые числа."
+
+        # Если есть победитель и проигравший
+        if winner_id and loser_id:
+            # Победителю добавляем выигрыш
+            await account_addition(pool, winner_id, bet)
+            # У проигравшего снимаем ставку
+            await account_withdrawal(pool, loser_id, bet)
 
         # Обновляем информацию о победителе
         await connection.execute("""
