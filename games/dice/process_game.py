@@ -19,7 +19,7 @@ async def handle_dice_roll(pool, message: Message):
         """, user_id)
 
         if not game:
-            await message.reply("Чтобы начать игру, отправьте в чат 🎲")
+            await message.reply("Чтобы начать игру, напишите команду /dice сумма ставка, к примеру /dice 100")
             return
 
         game_id = game["id"]

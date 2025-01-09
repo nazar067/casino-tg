@@ -54,4 +54,19 @@ async def init_db(pool):
                 timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS commission (
+                id SERIAL PRIMARY KEY,
+                transaction_id INT REFERENCES transactions(id) ON DELETE CASCADE,
+                amount INT NOT NULL,
+                timestamp TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS commission_withdraw (
+                id SERIAL PRIMARY KEY,
+                amount INT NOT NULL,
+                timestamp TIMESTAMP DEFAULT NOW()
+            )
+        """)
 
