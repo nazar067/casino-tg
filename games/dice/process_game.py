@@ -1,6 +1,6 @@
 from aiogram.types import Message
 from aiogram import Router
-from datetime import datetime
+import asyncio
 from finance.account import account_addition, account_withdrawal
 
 router = Router()
@@ -13,7 +13,6 @@ async def handle_dice_roll(pool, message: Message):
     dice_value = message.dice.value
 
     async with pool.acquire() as connection:
-        # Проверяем активную игру
         game = await connection.fetchrow("""
             SELECT * FROM gameDice
             WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
@@ -54,6 +53,8 @@ async def handle_dice_roll(pool, message: Message):
             """, dice_value, game_id)
 
             await message.reply(f"🎲 Вы выбросили: {dice_value}. Определяем победителя...")
+            
+            await asyncio.sleep(1)
 
             result_message = await determine_winner(pool, game_id)
             await message.answer(result_message)

@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from finance.check_withdrawable_stars import get_withdrawable_stars
 from finance.withdraw import check_withdrawable_stars, process_withdrawal
+from games.dice.check_active_game import has_active_game
 from keyboards.keyboard import cancel_keyboard
 from localisation.check_language import check_language
 from localisation.translations import translations
@@ -23,6 +24,10 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
     
     pool = dp["db_pool"]
     user_id = message.from_user.id
+    
+    if await has_active_game(pool, user_id):
+        await message.reply(translations["withdraw_active_game_error"][user_language])
+        return
 
     stars_available = await check_withdrawable_stars(pool, user_id)
     available_stars = await get_withdrawable_stars(pool, user_id)

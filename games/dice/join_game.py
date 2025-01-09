@@ -1,6 +1,7 @@
 from aiogram.types import CallbackQuery
 from aiogram import Router
 
+from games.dice.check_active_game import has_active_game
 from localisation.translations import translations
 from user.balance import get_user_balance
 from localisation.check_language import check_language
@@ -21,14 +22,11 @@ async def join_game_handler(callback: CallbackQuery, pool):
         return
 
     # Проверяем, участвует ли пользователь уже в игре
+    if await has_active_game(pool, user_id):
+        await callback.answer(translations["error_already_in_game_msg"][user_language], show_alert=True)
+        return
+    
     async with pool.acquire() as connection:
-        existing_game = await connection.fetchrow("""
-            SELECT id FROM gameDice WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
-        """, user_id)
-
-        if existing_game:
-            await callback.answer(translations["error_already_in_game_msg"][user_language], show_alert=True)
-            return
 
         game = await connection.fetchrow("""
             SELECT * FROM gameDice WHERE id = $1 AND is_closed = FALSE

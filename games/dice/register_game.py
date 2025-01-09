@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram import Dispatcher, Router
 
+from games.dice.check_active_game import has_active_game
 from localisation.translations import translations
 from localisation.check_language import check_language
 from user.balance import get_user_balance
@@ -16,12 +17,7 @@ async def create_game_handler(message: Message, pool, state):
     user_language = await check_language(pool, message.chat.id)
 
     # Проверяем, участвует ли пользователь уже в игре
-    async with pool.acquire() as connection:
-        existing_game = await connection.fetchrow("""
-            SELECT id FROM gameDice WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
-        """, user_id)
-
-    if existing_game:
+    if await has_active_game(pool, user_id):
         await message.reply(translations["error_already_in_game_msg"][user_language])
         return
 
