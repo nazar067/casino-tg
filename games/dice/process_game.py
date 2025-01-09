@@ -19,7 +19,7 @@ async def handle_dice_roll(pool, message: Message):
         """, user_id)
 
         if not game:
-            await message.reply("⚠️ Вы сейчас не участвуете в активной игре.")
+            await message.reply("Чтобы начать игру, отправьте в чат 🎲")
             return
 
         game_id = game["id"]
