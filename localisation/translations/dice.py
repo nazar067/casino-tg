@@ -94,6 +94,11 @@ translations = {
         "ru": "⚠️ Первый игрок ещё не бросил кубик.",
         "uk": "⚠️ Перший гравець ще не кинув кубик.",
     },
+    "wait_second_player":{
+        "en": "⚠️ Waiting for the second player to join the game.",
+        "ru": "⚠️ Ожидаем присоединения второго игрока.",
+        "uk": "⚠️ Очікуємо приєднання другого гравця."
+    },
     "already_roll_dice_second_player":{
         "en": "⚠️ You've already rolled the die. Wait for the result.",
         "ru": "⚠️ Вы уже бросили кубик. Ожидайте результата.",

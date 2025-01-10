@@ -26,6 +26,10 @@ async def handle_dice_roll(pool, message: Message):
             return
 
         game_id = game["id"]
+        
+        if game["player2_id"] is None:
+            await message.reply(dice_translation["wait_second_player"][user_language])
+            return
 
         if game["player1_id"] == user_id:
             if game["number1"] is not None:
