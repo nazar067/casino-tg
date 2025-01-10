@@ -29,7 +29,9 @@ Once PostgreSQL is installed, create a database named payments_db. You can do th
 3. Clone the Repository
 
 Clone this repository to your local machine:
+
 git clone https://github.com/nazar067/payments-tg.git
+
 cd payments-tg
 
 4. Install Python Dependencies
