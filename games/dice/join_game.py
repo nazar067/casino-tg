@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 from aiogram import Router
 
 from games.dice.check_active_game import has_active_game
-from localisation.translations import translations
+from localisation.translations.dice import translations as dice_translation
 from user.balance import get_user_balance
 from localisation.check_language import check_language
 
@@ -23,7 +23,7 @@ async def join_game_handler(callback: CallbackQuery, pool):
 
     # Проверяем, участвует ли пользователь уже в игре
     if await has_active_game(pool, user_id):
-        await callback.answer(translations["error_already_in_game_msg"][user_language], show_alert=True)
+        await callback.answer(dice_translation["error_already_in_game_msg"][user_language], show_alert=True)
         return
     
     async with pool.acquire() as connection:
@@ -33,20 +33,20 @@ async def join_game_handler(callback: CallbackQuery, pool):
         """, game_id)
 
         if not game:
-            await callback.answer(translations["game_not_found_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["game_not_found_msg"][user_language], show_alert=True)
             return
 
         if game["player1_id"] == user_id:
-            await callback.answer(translations["error_connect_your_game_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["error_connect_your_game_msg"][user_language], show_alert=True)
             return
 
         if game["player2_id"] is not None:
-            await callback.answer(translations["error_is_second_player_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["error_is_second_player_msg"][user_language], show_alert=True)
             return
 
         user_balance = await get_user_balance(pool, user_id)
         if user_balance < game["bet"]:
-            await callback.answer(translations["join_no_stars_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["join_no_stars_msg"][user_language], show_alert=True)
             return
 
         # Обновляем данные игры
@@ -57,8 +57,8 @@ async def join_game_handler(callback: CallbackQuery, pool):
         """, user_id, game_id)
 
     await callback.message.edit_text(
-        translations["game_start_msg"][user_language].format(
+        dice_translation["game_start_msg"][user_language].format(
             game_id=game_id, player1_id=game['player1_id'], user_id=user_id
         )
     )
-    await callback.answer(translations["succes_join_msg"][user_language])
+    await callback.answer(dice_translation["succes_join_msg"][user_language])

@@ -1,7 +1,7 @@
 from aiogram.types import Message
 from aiogram import Dispatcher
 from keyboards.keyboard import payment_keyboard
-from localisation.translations import translations
+from localisation.translations.finance import translations
 
 async def donate_handler(message: Message, dp: Dispatcher, user_language: str)-> str:
     """

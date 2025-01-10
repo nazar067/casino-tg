@@ -1,7 +1,7 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram import Router
 
-from localisation.translations import translations
+from localisation.translations.dice import translations as dice_translation
 from localisation.check_language import check_language
 
 router = Router()
@@ -21,11 +21,11 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
         """, game_id)
 
         if not game:
-            await callback.answer(translations["cancel_error_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["cancel_error_msg"][user_language], show_alert=True)
             return
 
         if game["player1_id"] != user_id:
-            await callback.answer(translations["cancel_creator_error_msg"][user_language], show_alert=True)
+            await callback.answer(dice_translation["cancel_creator_error_msg"][user_language], show_alert=True)
             return
 
         # Удаляем игру из базы данных
@@ -51,4 +51,4 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
 
     # Очищаем состояние
     await state.clear()
-    await callback.answer(translations["cancel_success_msg"][user_language])
+    await callback.answer(dice_translation["cancel_success_msg"][user_language])

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from finance.transactions import mark_transaction_as_closed
-from localisation.translations import translations
+from localisation.translations.finance import translations as finance_translation
 
 async def check_withdrawable_stars(pool, user_id):
     """
@@ -75,13 +75,13 @@ async def process_withdrawal(pool, user_id, amount, user_language):
         """, amount, user_id)
 
         withdrawal_details = "\n".join(
-            translations["withdraw_detail"][user_language].format(
+            finance_translation["withdraw_detail"][user_language].format(
                 withdraw_id=w[0], transaction_id=w[1], amount=w[2]
             )
             for w in withdrawals
         )
 
-        return translations["withdraw_success"][user_language].format(
+        return finance_translation["withdraw_success"][user_language].format(
             amount=amount, details=withdrawal_details
         )
         

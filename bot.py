@@ -15,7 +15,7 @@ from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
 from games.dice.cancel_game import cancel_game_handler, router as cancel_game_router
 from games.dice.process_game import handle_dice_roll, router as process_game_router
-from localisation.translations import translations
+from localisation.translations.finance import translations as finance_translation
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
@@ -92,10 +92,11 @@ async def successful_payment_handler(message: Message):
     user_id = message.from_user.id
     amount = message.successful_payment.total_amount
     pool = dp["db_pool"]
+    user_language = await check_language(pool, message.chat.id)
 
     final_amount = await handle_successful_payment(pool, user_id, amount)
 
-    await message.answer(f"✅ Баланс успешно пополнен на {final_amount} ⭐️!")
+    await message.answer(finance_translation["donate_success"][user_language].format(final_amount=final_amount))
     
 @router.message()
 async def button_handler(message: Message, state: FSMContext):
@@ -105,12 +106,12 @@ async def button_handler(message: Message, state: FSMContext):
     pool = dp["db_pool"]
     user_language = await check_language(pool, message.chat.id)
 
-    if message.text == translations["balance_btn"][user_language]:
+    if message.text == finance_translation["balance_btn"][user_language]:
         await message.reply(await balance_handler(message, dp, user_language))
-    elif message.text == translations["donate"][user_language]:
+    elif message.text == finance_translation["donate"][user_language]:
         text, keyboard = await donate_handler(message, dp, user_language)
         await message.reply(text, reply_markup=keyboard)
-    elif message.text == translations["withdraw_btn"][user_language]:
+    elif message.text == finance_translation["withdraw_btn"][user_language]:
         await withdraw_handler(message, dp, user_language, state)
 
 async def main():

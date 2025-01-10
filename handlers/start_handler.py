@@ -3,7 +3,7 @@ from aiogram import Dispatcher
 from localisation.get_language import get_language
 from localisation.check_language import check_language
 from keyboards.keyboard import menu_keyboard
-from localisation.translations import translations
+from localisation.translations.start import translations
 
 async def start_handler(message: Message, dp: Dispatcher):
     """

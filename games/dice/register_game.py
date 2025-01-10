@@ -2,7 +2,7 @@ from aiogram.types import Message
 from aiogram import Dispatcher, Router
 
 from games.dice.check_active_game import has_active_game
-from localisation.translations import translations
+from localisation.translations.dice import translations as dice_translation
 from localisation.check_language import check_language
 from user.balance import get_user_balance
 from keyboards.keyboard import game_buttons
@@ -18,7 +18,7 @@ async def create_game_handler(message: Message, pool, state):
 
     # Проверяем, участвует ли пользователь уже в игре
     if await has_active_game(pool, user_id):
-        await message.reply(translations["error_already_in_game_msg"][user_language])
+        await message.reply(dice_translation["error_already_in_game_msg"][user_language])
         return
 
     try:
@@ -26,13 +26,13 @@ async def create_game_handler(message: Message, pool, state):
         if bet <= 0:
             raise ValueError
     except (IndexError, ValueError):
-        await message.answer(translations["register_help_msg"][user_language])
+        await message.answer(dice_translation["register_help_msg"][user_language])
         return
 
     # Проверяем баланс игрока
     user_balance = await get_user_balance(pool, user_id)
     if user_balance < bet:
-        await message.answer(translations["register_no_stars_msg"][user_language])
+        await message.answer(dice_translation["register_no_stars_msg"][user_language])
         return
 
     async with pool.acquire() as connection:
@@ -45,7 +45,7 @@ async def create_game_handler(message: Message, pool, state):
     # Сохраняем ID сообщения команды и добавляем в состояние
     creator_message_id = message.message_id
     game_message = await message.answer(
-        translations["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
+        dice_translation["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
         reply_markup=game_buttons(game_id, bet, user_language)
     )
     game_message_id = game_message.message_id

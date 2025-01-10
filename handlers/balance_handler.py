@@ -1,7 +1,7 @@
 from aiogram.types import Message
 from aiogram import Dispatcher
 from user.balance import get_user_balance
-from localisation.translations import translations
+from localisation.translations.finance import translations
 
 async def balance_handler(message: Message, dp: Dispatcher, user_language: str):
     """
