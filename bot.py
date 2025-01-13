@@ -14,7 +14,7 @@ from localisation.check_language import check_language
 from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
-from games.dice.cancel_game import cancel_game_handler, router as cancel_game_router
+from games.dice.cancel_game import cancel_game_handler, periodic_cleanup, router as cancel_game_router
 from games.dice.process_game import handle_dice_roll, router as process_game_router
 from localisation.translations.finance import translations as finance_translation
 
@@ -125,6 +125,7 @@ async def main():
     dp["db_pool"] = pool
     await init_db(pool)
     dp.include_router(router)
+    asyncio.create_task(periodic_cleanup(pool))
 
     try:
         print("Бот запущен!")
