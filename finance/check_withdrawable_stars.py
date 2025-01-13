@@ -14,7 +14,7 @@ async def get_withdrawable_stars(pool: asyncpg.pool.Pool, user_id: int) -> int:
 
         result = await connection.fetchval("""
             SELECT COALESCE(SUM(amount), 0)
-            FROM transactions
+            FROM transaction_for_withdraw
             WHERE user_id = $1 AND timestamp <= $2
         """, user_id, cutoff_date)
 

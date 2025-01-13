@@ -18,13 +18,19 @@ async def init_db(pool):
             )
         """)
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS transactions (
+            CREATE TABLE IF NOT EXISTS transaction_for_withdraw (
                 id SERIAL PRIMARY KEY,
                 user_id BIGINT REFERENCES users(user_id),
                 amount INT NOT NULL,
                 is_closed BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP DEFAULT NOW()
             )
+        """)
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS transactions (
+                transaction_id BIGINT PRIMARY KEY REFERENCES transaction_for_withdraw(id),
+                amount INT NOT NULL
+            );
         """)
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS withdrawals (

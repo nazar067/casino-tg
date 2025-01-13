@@ -8,6 +8,7 @@ from finance.payment import process_payment, handle_successful_payment
 from games.dice.register_game import create_game_handler
 from handlers.balance_handler import balance_handler
 from handlers.donate_handler import donate_handler
+from handlers.history_handler import history_handler
 from handlers.withdraw_handler import withdraw_handler
 from localisation.check_language import check_language
 from handlers.start_handler import start_handler
@@ -113,6 +114,8 @@ async def button_handler(message: Message, state: FSMContext):
         await message.reply(text, reply_markup=keyboard)
     elif message.text == finance_translation["withdraw_btn"][user_language]:
         await withdraw_handler(message, dp, user_language, state)
+    elif message.text == finance_translation["history_btn"][user_language]:
+        await history_handler(message, pool)
 
 async def main():
     """

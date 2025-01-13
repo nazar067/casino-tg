@@ -23,7 +23,7 @@ def payment_keyboard(language: str) -> InlineKeyboardMarkup:
 
 def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
     """
-    Создание меню с кнопками "Пополнить" и "Вывести", локализованного по языку.
+    Создание меню с кнопками "Пополнить", "Вывести", "Баланс" и "История".
     """
     return ReplyKeyboardMarkup(
         keyboard=[
@@ -32,7 +32,8 @@ def menu_keyboard(language: str) -> ReplyKeyboardMarkup:
                 KeyboardButton(text=finance_translation["withdraw_btn"][language]),
             ],
             [
-                KeyboardButton(text=finance_translation["balance_btn"][language])
+                KeyboardButton(text=finance_translation["balance_btn"][language]),
+                KeyboardButton(text=finance_translation["history_btn"][language])
             ]
         ],
         resize_keyboard=True,

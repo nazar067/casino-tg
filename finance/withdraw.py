@@ -10,7 +10,7 @@ async def check_withdrawable_stars(pool, user_id):
         cutoff_date = datetime.now() - timedelta(days=21)
         available_stars = await connection.fetchval("""
             SELECT COALESCE(SUM(amount), 0)
-            FROM transactions
+            FROM transaction_for_withdraw
             WHERE user_id = $1 AND timestamp <= $2
         """, user_id, cutoff_date)
 
@@ -27,7 +27,7 @@ async def process_withdrawal(pool, user_id, amount, user_language):
 
         transactions = await connection.fetch("""
             SELECT id, amount
-            FROM transactions
+            FROM transaction_for_withdraw
             WHERE user_id = $1 AND timestamp <= $2 AND is_closed = FALSE
             ORDER BY timestamp ASC
         """, user_id, cutoff_date)
@@ -51,14 +51,14 @@ async def process_withdrawal(pool, user_id, amount, user_language):
             """, transaction_id, amount_to_withdraw)
 
             await connection.execute("""
-                UPDATE transactions
+                UPDATE transaction_for_withdraw
                 SET amount = amount - $1
                 WHERE id = $2
             """, amount_to_withdraw, transaction_id)
 
             remaining_amount = await connection.fetchval("""
                 SELECT amount
-                FROM transactions
+                FROM transaction_for_withdraw
                 WHERE id = $1
             """, transaction_id)
 
