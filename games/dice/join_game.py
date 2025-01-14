@@ -15,6 +15,7 @@ async def join_game_handler(callback: CallbackQuery, pool):
     game_id = int(callback.data.split(":")[1])
     user_id = callback.from_user.id
     chat_id = callback.message.chat.id
+    bot = callback.message.bot
     user_language = await check_language(pool, chat_id)
     
     if not pool:
@@ -56,9 +57,12 @@ async def join_game_handler(callback: CallbackQuery, pool):
             WHERE id = $2
         """, user_id, game_id)
 
+    player1_username = (await bot.get_chat(game['player1_id'])).username
+    player2_username = (await bot.get_chat(user_id)).username
+    
     await callback.message.edit_text(
         dice_translation["game_start_msg"][user_language].format(
-            game_id=game_id, player1_id=game['player1_id'], user_id=user_id
+            game_id=game_id, player1_id=player1_username, user_id=player2_username
         )
     )
     await callback.answer(dice_translation["succes_join_msg"][user_language])

@@ -14,6 +14,7 @@ async def handle_dice_roll(pool, message: Message):
     user_id = message.from_user.id
     dice_value = message.dice.value
     user_language = await check_language(pool, message.chat.id)
+    bot = message.bot
 
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""
@@ -26,6 +27,7 @@ async def handle_dice_roll(pool, message: Message):
             return
 
         game_id = game["id"]
+        player2_username = (await bot.get_chat(game["player2_id"])).username
         
         if game["player2_id"] is None:
             await message.reply(dice_translation["wait_second_player"][user_language])
@@ -42,7 +44,7 @@ async def handle_dice_roll(pool, message: Message):
                 WHERE id = $2
             """, dice_value, game_id)
 
-            await message.reply(dice_translation["first_result"][user_language].format(dice_value=dice_value))
+            await message.reply(dice_translation["first_result"][user_language].format(dice_value=dice_value, user_name=player2_username))
 
         elif game["player2_id"] == user_id:
             if game["number1"] is None:
@@ -63,10 +65,10 @@ async def handle_dice_roll(pool, message: Message):
             
             await asyncio.sleep(1)
 
-            result_message = await determine_winner(pool, game_id, user_language)
+            result_message = await determine_winner(pool, game_id, user_language, bot)
             await message.answer(result_message)
 
-async def determine_winner(pool, game_id, user_language):
+async def determine_winner(pool, game_id, user_language, bot):
     """
     Определяет победителя игры.
     """
@@ -83,15 +85,18 @@ async def determine_winner(pool, game_id, user_language):
         bet = game["bet"]
         player1_id = game["player1_id"]
         player2_id = game["player2_id"]
-        
+
+        player1_username = (await bot.get_chat(player1_id)).username
+        player2_username = (await bot.get_chat(player2_id)).username
+
         if game["number1"] > game["number2"]:
             winner_id = player1_id
             loser_id = player2_id
-            winner_message = dice_translation["first_player_winner"][user_language].format(winner_id=winner_id)
+            winner_message = dice_translation["first_player_winner"][user_language].format(winner_name=player1_username)
         elif game["number1"] < game["number2"]:
             winner_id = player2_id
             loser_id = player1_id
-            winner_message = dice_translation["second_player_winner"][user_language].format(winner_id=winner_id)
+            winner_message = dice_translation["second_player_winner"][user_language].format(winner_name=player2_username)
         else:
             winner_id = None
             loser_id = None

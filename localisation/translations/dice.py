@@ -55,9 +55,9 @@ translations = {
         "uk": "⚠️ Не вистачає зірок, для приєднання гри.",
     },
     "game_start_msg":{
-        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: {player1_id}\n Player 2: {user_id}\n\nWait for the game to start.",
-        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: {player1_id}\nИгрок 2: {user_id}\n\nОжидайте начала игры.",
-        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: {player1_id}\nГравець 2: {user_id}\n\nОчікуйте початку гри.",
+        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: @{player1_id}\n Player 2: @{user_id}\n\nWait for the game to start.",
+        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\nОжидайте начала игры.",
+        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\nОчікуйте початку гри.",
     },
     "succes_join_msg":{
         "en": "You have successfully joined the game!",
@@ -85,9 +85,9 @@ translations = {
         "uk": "⚠️ Ви вже кинули кубик. Чекаємо на кидок другого гравця.",
     },
     "first_result":{
-        "en": "🎲 You have thrown: {dice_value}. Wait for the second player to throw.",
-        "ru": "🎲 Вы выбросили: {dice_value}. Ожидаем броска второго игрока.",
-        "uk": "🎲 Ви викинули: {dice_value}. Очікуємо кидка другого гравця.",
+        "en": "🎲 You have thrown: {dice_value}. Wait for the second player to throw.\n\n @{user_name} your turn",
+        "ru": "🎲 Вы выбросили: {dice_value}. Ожидаем броска второго игрока.\n\n @{user_name} ваш ход",
+        "uk": "🎲 Ви викинули: {dice_value}. Очікуємо кидка другого гравця.\n\n @{user_name} ваш хід",
     },
     "wait_first_player":{
         "en": "⚠️ The first player has not yet rolled a dice.",
@@ -115,14 +115,14 @@ translations = {
         "uk": "⚠️ Неможливо визначити переможця: гру не завершено.",
     },
     "first_player_winner":{
-        "en": "🎉 Winner: Player 1 (ID: {winner_id})! 🎲",
-        "ru": "🎉 Победитель: Игрок 1 (ID: {winner_id})! 🎲",
-        "uk": "🎉 Переможець: Гравець 1 (ID: {winner_id})! 🎲",
+        "en": "🎉 Winner: Player 1 @{winner_name}! 🎲",
+        "ru": "🎉 Победитель: Игрок 1 @{winner_name}! 🎲",
+        "uk": "🎉 Переможець: Гравець 1 @{winner_name}! 🎲",
     },
     "second_player_winner":{
-        "en": "🎉 Winner: Player 2 (ID: {winner_id})! 🎲",
-        "ru": "🎉 Победитель: Игрок 2 (ID: {winner_id})! 🎲",
-        "uk": "🎉 Переможець: Гравець 2 (ID: {winner_id})! 🎲",
+        "en": "🎉 Winner: Player 2 @{winner_name}! 🎲",
+        "ru": "🎉 Победитель: Игрок 2 @{winner_name}! 🎲",
+        "uk": "🎉 Переможець: Гравець 2 @{winner_name}! 🎲",
     },
     "draw_msg":{
         "en": "🎲 Tie! Both players threw out the same numbers.",
