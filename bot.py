@@ -1,3 +1,7 @@
+from logs.send_server_errors import send_server_logs
+from logs.write_server_errors import setup_logging
+setup_logging()
+
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message, CallbackQuery, PreCheckoutQuery
 from aiogram.filters import Command
@@ -43,6 +47,12 @@ async def dice_handler(message: Message, state: FSMContext):
     pool = dp["db_pool"]
     await create_game_handler(message, pool, state)
     
+@router.message(Command("serverLogs"))
+async def server_logs(message: Message):
+    """
+    Отправка файла serverLogs после проверки прав пользователя.
+    """
+    await send_server_logs(message, dp)
 
 @router.callback_query(lambda callback: callback.data.startswith("join_game:"))
 async def join_dice_handler(callback: CallbackQuery):

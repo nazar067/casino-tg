@@ -1,4 +1,5 @@
 config.py
+serverLogs.txt
 venv/
 __pycache__/
 *.py[cod]

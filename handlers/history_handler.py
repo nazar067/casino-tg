@@ -8,7 +8,7 @@ from keyboards.keyboard import pagination_keyboard
 
 router = Router()
 
-PAGE_SIZE = 1
+PAGE_SIZE = 10
 
 async def history_handler(message_or_callback, pool, page: int = 1):
     """
