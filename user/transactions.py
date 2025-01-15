@@ -23,7 +23,6 @@ async def get_user_transactions(pool: Pool, user_id: int) -> List[Dict]:
             ORDER BY tfw.timestamp DESC
         """, user_id)
 
-    # Форматируем timestamp в человекочитаемый вид
     result = [
         {
             "transaction_id": record["transaction_id"],

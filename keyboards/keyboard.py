@@ -70,3 +70,31 @@ def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
         callback_data="cancel_withdraw"
     )
     return builder.as_markup()
+
+def pagination_keyboard(total_items: int, current_page: int, page_size: int, language: str) -> InlineKeyboardMarkup:
+    """
+    Создание кнопок пагинации для истории транзакций.
+
+    :param total_items: Общее количество элементов.
+    :param current_page: Текущая страница.
+    :param page_size: Количество элементов на странице.
+    :param language: Язык пользователя.
+    :return: Клавиатура с кнопками пагинации.
+    """
+    total_pages = (total_items + page_size - 1) // page_size
+    builder = InlineKeyboardBuilder()
+
+    if current_page > 1:
+        builder.button(
+            text=finance_translation["prev_page_btn"][language],
+            callback_data=f"history_page:{current_page - 1}"
+        )
+
+    if current_page < total_pages:
+        builder.button(
+            text=finance_translation["next_page_btn"][language],
+            callback_data=f"history_page:{current_page + 1}"
+        )
+
+    builder.adjust(2)
+    return builder.as_markup()

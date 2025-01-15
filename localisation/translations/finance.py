@@ -95,8 +95,33 @@ translations = {
         "uk": "У вас немає транзакцій."
     },
     "history_msg": {
-        "en": "💳 Transaction History:\n{history}",
-        "ru": "💳 История транзакций:\n{history}",
-        "uk": "💳 Історія транзакцій:\n{history}"
+        "en": "*Transaction History:*\n\n{history}",
+        "ru": "*История транзакций:*\n\n{history}",
+        "uk": "*Історія транзакцій:*\n\n{history}"
+    },
+    "prev_page_btn": {
+        "en": "⬅️ Previous",
+        "ru": "⬅️ Назад",
+        "uk": "⬅️ Назад"
+    },
+    "next_page_btn": {
+        "en": "➡️ Next",
+        "ru": "➡️ Вперед",
+        "uk": "➡️ Вперед"
+    },
+    "transaction_row": {
+        "en": "💳 ID: {transaction_id}, Amount: {amount} ⭐️, Closed: {is_closed}, Time: {timestamp}",
+        "ru": "💳 ID: {transaction_id}, Сумма: {amount} ⭐️, Закрыта: {is_closed}, Время: {timestamp}",
+        "uk": "💳 ID: {transaction_id}, Сума: {amount} ⭐️, Закрита: {is_closed}, Час: {timestamp}"
+    },
+    "yes": {
+        "en": "Yes",
+        "ru": "Да",
+        "uk": "Так"
+    },
+    "no": {
+        "en": "No",
+        "ru": "Нет",
+        "uk": "Ні"
     }
 }

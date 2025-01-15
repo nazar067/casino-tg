@@ -1,6 +1,9 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram import Router
 from datetime import datetime, timedelta
+from datetime import datetime, timedelta
+from asyncpg import Pool
+import asyncio
 
 from localisation.translations.dice import translations as dice_translation
 from localisation.check_language import check_language
@@ -53,10 +56,6 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
     # Очищаем состояние
     await state.clear()
     await callback.answer(dice_translation["cancel_success_msg"][user_language])
-    
-    from datetime import datetime, timedelta
-from asyncpg import Pool
-import asyncio
 
 async def cleanup_expired_games(pool: Pool):
     """

@@ -16,6 +16,7 @@ from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
 from games.dice.cancel_game import cancel_game_handler, periodic_cleanup, router as cancel_game_router
 from games.dice.process_game import handle_dice_roll, router as process_game_router
+from handlers.history_handler import history_pagination_handler, router as history_router
 from localisation.translations.finance import translations as finance_translation
 
 bot = Bot(token=API_TOKEN)
@@ -24,6 +25,7 @@ dp.include_router(withdraw_router)
 dp.include_router(join_game_router)
 dp.include_router(cancel_game_router)
 dp.include_router(process_game_router)
+dp.include_router(history_router)
 router = Router()
 
 @router.message(Command("start"))
@@ -57,6 +59,14 @@ async def cancel_dice_handler(callback: CallbackQuery, state: FSMContext):
     """
     pool = dp["db_pool"]
     await cancel_game_handler(callback, pool, state)
+    
+@router.callback_query(lambda callback: callback.data.startswith("history_page:"))
+async def history_user_handler(callback: CallbackQuery, state: FSMContext):
+    """
+    Обработка нажатия кнопки для отмены игры.
+    """
+    pool = dp["db_pool"]
+    await history_pagination_handler(callback, pool)
 
 @router.message(lambda message: message.dice)
 async def dice_roll_handler(message: Message):
