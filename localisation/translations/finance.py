@@ -123,5 +123,30 @@ translations = {
         "en": "No",
         "ru": "Нет",
         "uk": "Ні"
+    },
+    "success_commission_withdraw": {
+        "en": "✅ Successfully added {amount} to the commission_withdraw table.",
+        "ru": "✅ Успешно добавлено {amount} в таблицу commission_withdraw.",
+        "uk": "✅ Успішно додано {amount} в таблицю commission_withdraw."
+    },
+    "variance_msg": {
+        "en": (
+            "📊 Final Variance:\n"
+            "🔹 Total Commission: {commission_total} ⭐️\n"
+            "🔹 Total Withdrawn: {commission_withdraw_total} ⭐️\n"
+            "🔸 Result: {variance} ⭐️"
+        ),
+        "ru": (
+            "📊 Итоговая разница:\n"
+            "🔹 Всего комиссий: {commission_total} ⭐️\n"
+            "🔹 Всего выведено: {commission_withdraw_total} ⭐️\n"
+            "🔸 Итог: {variance} ⭐️"
+        ),
+        "uk": (
+            "📊 Підсумкова різниця:\n"
+            "🔹 Усього комісій: {commission_total} ⭐️\n"
+            "🔹 Усього виведено: {commission_withdraw_total} ⭐️\n"
+            "🔸 Результат: {variance} ⭐️"
+        )
     }
 }

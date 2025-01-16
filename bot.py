@@ -21,6 +21,7 @@ from games.dice.join_game import join_game_handler, router as join_game_router
 from games.dice.cancel_game import cancel_game_handler, periodic_cleanup, router as cancel_game_router
 from games.dice.process_game import handle_dice_roll, router as process_game_router
 from handlers.history_handler import history_pagination_handler, router as history_router
+from finance.commission import commission_withdraw_handler, variance_handler
 from localisation.translations.finance import translations as finance_translation
 
 bot = Bot(token=API_TOKEN)
@@ -53,6 +54,22 @@ async def server_logs(message: Message):
     Отправка файла serverLogs после проверки прав пользователя.
     """
     await send_server_logs(message, dp)
+    
+@router.message(Command("commissionWithdraw"))
+async def commission_command_handler(message: Message):
+    """
+    Обработка команды /commissionWithdraw.
+    """
+    pool = dp["db_pool"]
+    await commission_withdraw_handler(message, pool)
+    
+@router.message(Command("variance"))
+async def variance_command_handler(message: Message):
+    """
+    Обработка команды /variance.
+    """
+    pool = dp["db_pool"]
+    await variance_handler(message, pool)
 
 @router.callback_query(lambda callback: callback.data.startswith("join_game:"))
 async def join_dice_handler(callback: CallbackQuery):
