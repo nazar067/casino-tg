@@ -60,11 +60,15 @@ Telegram Bot Token: You can obtain this token from BotFather.
 
 Database Connection String: Configure the DATABASE_URL for your PostgreSQL database.
 
+Admin id: You can get it by @getmyid_bot
+
 Example:
 
 `API_TOKEN = "your_telegram_bot_token"`
 
 `DATABASE_URL = "postgresql://username:password@localhost:5432/payments_db"`
+
+`ADMIN_ID = "753848394"`
 
 6. Start the Bot
 
