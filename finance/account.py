@@ -34,6 +34,7 @@ async def account_withdrawal(pool, user_id: int, withdrawal_amount: int):
         """, user_id)
 
         if not current_balance or current_balance < withdrawal_amount:
+            
             raise ValueError("Недостаточно средств на балансе.")
 
         await connection.execute("""

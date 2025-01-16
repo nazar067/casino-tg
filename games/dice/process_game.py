@@ -1,3 +1,4 @@
+import logging
 from aiogram.types import Message
 from aiogram import Router
 import asyncio
@@ -65,8 +66,18 @@ async def handle_dice_roll(pool, message: Message):
             
             await asyncio.sleep(1)
 
-            result_message = await determine_winner(pool, game_id, user_language, bot)
-            await message.answer(result_message)
+            try:
+                result_message = await determine_winner(pool, game_id, user_language, bot)
+                await message.answer(result_message)
+            except Exception as e:
+                await connection.execute("""
+                    UPDATE gameDice
+                    SET is_closed = TRUE
+                    WHERE id = $1
+                """, game_id)
+                await message.answer(dice_translation["critical_error"][user_language])
+
+                logging.error(f"Error determining winner for game {game_id}: {e}", exc_info=True)
 
 async def determine_winner(pool, game_id, user_language, bot):
     """
@@ -103,8 +114,8 @@ async def determine_winner(pool, game_id, user_language, bot):
             winner_message = dice_translation["draw_msg"][user_language]
 
         if winner_id and loser_id:
-            await account_addition(pool, winner_id, bet)
             await account_withdrawal(pool, loser_id, bet)
+            await account_addition(pool, winner_id, bet)
 
         await connection.execute("""
             UPDATE gameDice

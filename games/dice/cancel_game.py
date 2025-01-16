@@ -44,14 +44,11 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
 
     # Удаляем сообщения
     try:
-        try:
-            if creator_message_id:
-                await callback.bot.delete_message(callback.message.chat.id, creator_message_id)
-        finally:    
-            if game_message_id:
-                await callback.bot.delete_message(callback.message.chat.id, game_message_id)
-    except Exception as e:
-        print(f"Ошибка удаления сообщений: {e}")
+        if creator_message_id:
+            await callback.bot.delete_message(callback.message.chat.id, creator_message_id)
+    finally:    
+        if game_message_id:
+            await callback.bot.delete_message(callback.message.chat.id, game_message_id)
 
     # Очищаем состояние
     await state.clear()
