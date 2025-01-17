@@ -1,7 +1,6 @@
 from aiogram.types import CallbackQuery, Message
 from aiogram import Router
-from datetime import datetime, timedelta
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from asyncpg import Pool
 import asyncio
 
@@ -59,7 +58,7 @@ async def cleanup_expired_games(pool: Pool):
     Удаляет игры, которые не завершились в течение 10 минут после их создания.
     """
     async with pool.acquire() as connection:
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
 
         expiration_time = now - timedelta(minutes=10)
 
