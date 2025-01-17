@@ -33,14 +33,14 @@ dp.include_router(process_game_router)
 dp.include_router(history_router)
 router = Router()
 
-@router.message(Command("start"))
+@router.message(Command("start"), prefix_ignore_case=True)
 async def start(message: Message):
     """
     Команда /start
     """
     await start_handler(message, dp)
     
-@router.message(Command("dice"))
+@router.message(Command("dice"), prefix_ignore_case=True)
 async def dice_handler(message: Message, state: FSMContext):
     """
     Команда /dice для создания игры в кости.
@@ -48,14 +48,14 @@ async def dice_handler(message: Message, state: FSMContext):
     pool = dp["db_pool"]
     await create_game_handler(message, pool, state)
     
-@router.message(Command("serverLogs"))
+@router.message(Command("serverLogs"), prefix_ignore_case=True)
 async def server_logs(message: Message):
     """
     Отправка файла serverLogs после проверки прав пользователя.
     """
     await send_server_logs(message, dp)
     
-@router.message(Command("commissionWithdraw"))
+@router.message(Command("commissionWithdraw"), prefix_ignore_case=True)
 async def commission_command_handler(message: Message):
     """
     Обработка команды /commissionWithdraw.
@@ -63,7 +63,7 @@ async def commission_command_handler(message: Message):
     pool = dp["db_pool"]
     await commission_withdraw_handler(message, pool)
     
-@router.message(Command("variance"))
+@router.message(Command("variance"), prefix_ignore_case=True)
 async def variance_command_handler(message: Message):
     """
     Обработка команды /variance.
