@@ -55,9 +55,9 @@ translations = {
         "uk": "⚠️ Не вистачає зірок, для приєднання гри.",
     },
     "game_start_msg":{
-        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: @{player1_id}\n Player 2: @{user_id}\n\nWait for the game to start.",
-        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\nОжидайте начала игры.",
-        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\nОчікуйте початку гри.",
+        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: @{player1_id}\n Player 2: @{user_id}\n\n@{player1_id} to start send an emoji 🎲",
+        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\n@{player1_id}, чтобы начать отправьте эмодзи 🎲",
+        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\n@{player1_id}, щоб почати відправте емодзі 🎲",
     },
     "succes_join_msg":{
         "en": "You have successfully joined the game!",

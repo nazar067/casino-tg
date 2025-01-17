@@ -1,14 +1,17 @@
 from aiogram.types import LabeledPrice
 from finance.commission import calculate_final_amount, calculate_commission
+from localisation.check_language import check_language
+from localisation.translations.finance import translations as finance_translation
 
-async def process_payment(callback, amount, provider_token):
+async def process_payment(callback, amount, provider_token, pool):
     """
     Генерация инвойса для платежа
     """
+    user_language = await check_language(pool, callback.message.chat.id)
     prices = [LabeledPrice(label=f"XTR", amount=amount)]
     return dict(
-        title="Пополнение звёзд",
-        description=f"Пополнение на {amount} ⭐️",
+        title=finance_translation["payment_title"][user_language],
+        description=finance_translation["payment_description"][user_language].format(amount=amount),
         provider_token=provider_token,
         currency="XTR",
         prices=prices,
@@ -23,7 +26,6 @@ async def handle_successful_payment(pool, user_id, amount):
     commission_amount = calculate_commission(amount)
 
     async with pool.acquire() as connection:
-        # Убедимся, что пользователь существует в таблице users
         await connection.execute("""
             INSERT INTO users (user_id, balance) 
             VALUES ($1, 0)
@@ -44,16 +46,16 @@ async def handle_successful_payment(pool, user_id, amount):
             RETURNING id
         """, user_id, final_amount)
 
+        # Добавляем запись в transactions
+        await connection.execute("""
+            INSERT INTO transactions (transaction_for_withdraw_id, amount) 
+            VALUES ($1, $2)
+        """, transaction_id, final_amount)
+
         # Добавляем запись в commission
         await connection.execute("""
             INSERT INTO commission (transaction_id, amount) 
             VALUES ($1, $2)
         """, transaction_id, commission_amount)
-
-        # Добавляем запись в transactions
-        await connection.execute("""
-            INSERT INTO transactions (transaction_id, amount) 
-            VALUES ($1, $2)
-        """, transaction_id, final_amount)
 
     return final_amount

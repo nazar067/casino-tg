@@ -19,7 +19,7 @@ async def account_addition(pool, user_id: int, amount: int):
         """, user_id, amount, datetime.now())
 
         await connection.execute("""
-            INSERT INTO transactions (transaction_id, amount)
+            INSERT INTO transactions (transaction_for_withdraw_id, amount)
             VALUES ($1, $2)
         """, transaction_id, amount)
 

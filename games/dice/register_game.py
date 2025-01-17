@@ -16,7 +16,6 @@ async def create_game_handler(message: Message, pool, state):
     user_id = message.from_user.id
     user_language = await check_language(pool, message.chat.id)
 
-    # Проверяем, участвует ли пользователь уже в игре
     if await has_active_game(pool, user_id):
         await message.reply(dice_translation["error_already_in_game_msg"][user_language])
         return

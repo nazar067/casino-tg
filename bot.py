@@ -111,7 +111,8 @@ async def pay_stars_handler(callback: CallbackQuery):
     amount = int(callback.data.split(":")[1])
     provider_token = ""
 
-    payment_data = await process_payment(callback, amount, provider_token)
+    pool = dp["db_pool"]
+    payment_data = await process_payment(callback, amount, provider_token, pool)
     if payment_data:
         await callback.message.answer_invoice(**payment_data)        
 

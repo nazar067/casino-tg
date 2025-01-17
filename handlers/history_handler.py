@@ -37,7 +37,7 @@ async def history_handler(message_or_callback, pool, page: int = 1):
 
     history_message = "\n\n".join(
         finance_translation["transaction_row"][user_language].format(
-            transaction_id=transaction['transaction_id'],
+            transaction_id=transaction['transaction_for_withdraw_id'],
             amount=transaction['amount'],
             is_closed=finance_translation["yes"][user_language] if transaction['is_closed'] else finance_translation["no"][user_language],
             timestamp=transaction['timestamp']

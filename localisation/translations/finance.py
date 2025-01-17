@@ -1,4 +1,14 @@
 translations = {
+    "payment_title": {
+        "en": "Replenishing the stars",
+        "ru": "Пополнение звёзд",
+        "uk": "Поповнення зірок",
+    },
+    "payment_description": {
+        "en": "Deposit to {amount} ⭐️",
+        "ru": "Пополнение на {amount} ⭐️",
+        "uk": "Поповнення на {amount} ⭐️",
+    },
     "donate": {
         "en": "💰 Donate ⬇️",
         "ru": "💰 Пополнить ⬇️",

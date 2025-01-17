@@ -28,7 +28,8 @@ async def init_db(pool):
         """)
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
-                transaction_id BIGINT PRIMARY KEY REFERENCES transaction_for_withdraw(id),
+                id SERIAL PRIMARY KEY,
+                transaction_for_withdraw_id INT NOT NULL REFERENCES transaction_for_withdraw(id),
                 amount INT NOT NULL
             );
         """)

@@ -1,5 +1,6 @@
 from aiogram.types import CallbackQuery
 from aiogram import Router
+import logging
 
 from games.dice.check_active_game import has_active_game
 from localisation.translations.dice import translations as dice_translation
@@ -60,9 +61,15 @@ async def join_game_handler(callback: CallbackQuery, pool):
     player1_username = (await bot.get_chat(game['player1_id'])).username
     player2_username = (await bot.get_chat(user_id)).username
     
-    await callback.message.edit_text(
-        dice_translation["game_start_msg"][user_language].format(
-            game_id=game_id, player1_id=player1_username, user_id=player2_username
-        )
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        logging.error(f"Error deleting start message {game_id}: {e}", exc_info=True)
+
+    new_message_text = dice_translation["game_start_msg"][user_language].format(
+        game_id=game_id, player1_id=player1_username, user_id=player2_username
     )
+    
+    await callback.message.answer(new_message_text)
+    
     await callback.answer(dice_translation["succes_join_msg"][user_language])
