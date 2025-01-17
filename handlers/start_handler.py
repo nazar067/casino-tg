@@ -11,7 +11,10 @@ async def start_handler(message: Message, dp: Dispatcher):
     """
     pool = dp["db_pool"]
     chat_id = message.chat.id
-    language_code = message.from_user.language_code
+    language_code = message.from_user.language_code or "en"
+
+    if not language_code or len(language_code) != 2:
+        language_code = "en"
 
     await get_language(pool, chat_id, language_code)
 
