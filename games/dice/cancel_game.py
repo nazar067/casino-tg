@@ -62,11 +62,12 @@ async def cleanup_expired_games(pool: Pool):
         now = datetime.now(timezone.utc)
 
         expiration_time = now - timedelta(minutes=10)
+        expiration_time_naive = expiration_time.replace(tzinfo=None)
 
         expired_games = await connection.fetch("""
             SELECT id FROM gameDice
             WHERE is_closed = FALSE AND timestamp <= $1
-        """, expiration_time)
+        """, expiration_time_naive)
 
         if expired_games:
             expired_ids = [game["id"] for game in expired_games]
