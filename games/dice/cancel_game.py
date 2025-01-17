@@ -77,7 +77,7 @@ async def cleanup_expired_games(pool: Pool):
 
 
 
-async def periodic_cleanup(pool: Pool, interval: int = 60):
+async def periodic_cleanup(pool: Pool, interval: int = 600):
     """
     Периодически запускает очистку игр.
     """
