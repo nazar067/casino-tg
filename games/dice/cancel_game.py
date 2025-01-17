@@ -1,3 +1,4 @@
+import logging
 from aiogram.types import CallbackQuery, Message
 from aiogram import Router
 from datetime import datetime, timedelta, timezone
@@ -76,7 +77,7 @@ async def cleanup_expired_games(pool: Pool):
 
 
 
-async def periodic_cleanup(pool: Pool, interval: int = 600):
+async def periodic_cleanup(pool: Pool, interval: int = 60):
     """
     Периодически запускает очистку игр.
     """
@@ -84,6 +85,6 @@ async def periodic_cleanup(pool: Pool, interval: int = 600):
         try:
             await cleanup_expired_games(pool)
         except Exception as e:
-            print(f"Ошибка при очистке игр: {e}")
+            logging.error(f"Ошибка при очистке игр: {e}")
         await asyncio.sleep(interval)
 
