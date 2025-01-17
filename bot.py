@@ -166,7 +166,7 @@ async def main():
     asyncio.create_task(periodic_cleanup(pool))
 
     try:
-        print("Бот запущен!")
+        print("Bot started")
         await dp.start_polling(bot)
     finally:
         await pool.close()
