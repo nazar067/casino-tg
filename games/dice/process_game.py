@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram import Router
 import asyncio
 from finance.account import account_addition, account_withdrawal
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from localisation.translations.dice import translations as dice_translation
 
 router = Router()
@@ -14,7 +14,7 @@ async def handle_dice_roll(pool, message: Message):
     """
     user_id = message.from_user.id
     dice_value = message.dice.value
-    user_language = await check_language(pool, message.chat.id)
+    user_language = await get_language(pool, message.chat.id)
     bot = message.bot
 
     async with pool.acquire() as connection:

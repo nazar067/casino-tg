@@ -5,7 +5,7 @@ import logging
 from games.dice.check_active_game import has_active_game
 from localisation.translations.dice import translations as dice_translation
 from user.balance import get_user_balance
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 
 router = Router()
 
@@ -17,7 +17,7 @@ async def join_game_handler(callback: CallbackQuery, pool):
     user_id = callback.from_user.id
     chat_id = callback.message.chat.id
     bot = callback.message.bot
-    user_language = await check_language(pool, chat_id)
+    user_language = await get_language(pool, chat_id)
     
     if not pool:
         await callback.answer("Ошибка: подключение к базе данных отсутствует.", show_alert=True)

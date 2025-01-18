@@ -6,7 +6,7 @@ from finance.check_withdrawable_stars import get_withdrawable_stars
 from finance.withdraw import check_withdrawable_stars, process_withdrawal
 from games.dice.check_active_game import has_active_game
 from keyboards.keyboard import cancel_keyboard
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 
 router = Router()
@@ -65,7 +65,7 @@ async def process_withdrawal_input(message: Message, state: FSMContext):
         return
 
     user_id = message.from_user.id
-    user_language = await check_language(db_pool, user_id)
+    user_language = await get_language(db_pool, user_id)
 
     if not message.text.isdigit():
         error_message = await message.reply(finance_translation["invalid_amount"][user_language])

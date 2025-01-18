@@ -1,10 +1,12 @@
-async def get_language(pool, chat_id, language_code):
+async def get_language(pool, chat_id):
     """
-    Определение языка пользователя и запись в таблицу languages
+    Проверка языка пользователя. Если язык не русский или украинский, возвращается английский.
     """
     async with pool.acquire() as connection:
-        await connection.execute("""
-            INSERT INTO languages (chat_id, language_code)
-            VALUES ($1, $2)
-            ON CONFLICT (chat_id) DO UPDATE SET language_code = EXCLUDED.language_code
-        """, chat_id, language_code)
+        language_code = await connection.fetchval("""
+            SELECT language_code FROM languages WHERE chat_id = $1
+        """, chat_id)
+
+    if language_code not in ["ru", "uk"]:
+        return "en"
+    return language_code

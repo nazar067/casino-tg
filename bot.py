@@ -1,7 +1,9 @@
+from handlers.language_handler import set_language_handler
 from logs.send_server_errors import send_server_logs
 from logs.write_server_errors import setup_logging
 setup_logging()
 
+from keyboards.keyboard import language_keyboard
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message, CallbackQuery, PreCheckoutQuery
 from aiogram.filters import Command
@@ -14,7 +16,7 @@ from handlers.balance_handler import balance_handler
 from handlers.donate_handler import donate_handler
 from handlers.history_handler import history_handler
 from handlers.withdraw_handler import withdraw_handler
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from handlers.start_handler import start_handler
 from handlers.withdraw_handler import router as withdraw_router
 from games.dice.join_game import join_game_handler, router as join_game_router
@@ -23,6 +25,7 @@ from games.dice.process_game import handle_dice_roll, router as process_game_rou
 from handlers.history_handler import history_pagination_handler, router as history_router
 from finance.commission import commission_withdraw_handler, variance_handler
 from localisation.translations.finance import translations as finance_translation
+from localisation.translations.general import translations as general_translation
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
@@ -70,6 +73,18 @@ async def variance_command_handler(message: Message):
     """
     pool = dp["db_pool"]
     await variance_handler(message, pool)
+    
+@router.message(Command(commands=["changelang"]))
+async def change_language_handler(message: Message):
+    """
+    Обработка команды /changelang. Показывает кнопки выбора языка.
+    """
+    pool = dp["db_pool"]
+    user_language = await get_language(pool, message.chat.id)
+    await message.reply(
+        general_translation["choose_lang"][user_language],
+        reply_markup=language_keyboard()
+    )
 
 @router.callback_query(lambda callback: callback.data.startswith("join_game:"))
 async def join_dice_handler(callback: CallbackQuery):
@@ -78,6 +93,14 @@ async def join_dice_handler(callback: CallbackQuery):
     """
     pool = dp["db_pool"]
     await join_game_handler(callback, pool)
+    
+@router.callback_query(lambda callback: callback.data.startswith("set_language:"))
+async def language_handler(callback: CallbackQuery):
+    """
+    Обработка нажатия кнопки для присоединения к игре.
+    """
+    pool = dp["db_pool"]
+    await set_language_handler(callback, pool)
 
 @router.callback_query(lambda callback: callback.data.startswith("cancel_game:"))
 async def cancel_dice_handler(callback: CallbackQuery, state: FSMContext):
@@ -131,7 +154,7 @@ async def successful_payment_handler(message: Message):
     user_id = message.from_user.id
     amount = message.successful_payment.total_amount
     pool = dp["db_pool"]
-    user_language = await check_language(pool, message.chat.id)
+    user_language = await get_language(pool, message.chat.id)
 
     final_amount = await handle_successful_payment(pool, user_id, amount)
 
@@ -143,7 +166,7 @@ async def button_handler(message: Message, state: FSMContext):
     Обработка всех кнопок на основе локализации
     """
     pool = dp["db_pool"]
-    user_language = await check_language(pool, message.chat.id)
+    user_language = await get_language(pool, message.chat.id)
 
     if message.text == finance_translation["balance_btn"][user_language]:
         await message.reply(await balance_handler(message, dp, user_language))

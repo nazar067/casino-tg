@@ -1,13 +1,13 @@
 from aiogram.types import LabeledPrice
 from finance.commission import calculate_final_amount, calculate_commission
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 
 async def process_payment(callback, amount, provider_token, pool):
     """
     Генерация инвойса для платежа
     """
-    user_language = await check_language(pool, callback.message.chat.id)
+    user_language = await get_language(pool, callback.message.chat.id)
     prices = [LabeledPrice(label=f"XTR", amount=amount)]
     return dict(
         title=finance_translation["payment_title"][user_language],

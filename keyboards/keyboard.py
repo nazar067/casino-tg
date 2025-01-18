@@ -98,3 +98,15 @@ def pagination_keyboard(total_items: int, current_page: int, page_size: int, lan
 
     builder.adjust(2)
     return builder.as_markup()
+
+
+def language_keyboard() -> InlineKeyboardMarkup:
+    """
+    Создание клавиатуры для смены языка.
+    """
+    builder = InlineKeyboardBuilder()
+    builder.button(text="English", callback_data="set_language:en")
+    builder.button(text="Русский", callback_data="set_language:ru")
+    builder.button(text="Українська", callback_data="set_language:uk")
+    builder.adjust(1)
+    return builder.as_markup()

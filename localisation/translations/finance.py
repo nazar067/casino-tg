@@ -95,9 +95,9 @@ translations = {
         "uk": "❌ Скасувати",
     },
     "history_btn": {
-        "en": "History",
-        "ru": "История",
-        "uk": "Історія"
+        "en": "📋History📋",
+        "ru": "📋История📋",
+        "uk": "📋Історія📋"
     },
     "no_transactions": {
         "en": "You have no transactions.",

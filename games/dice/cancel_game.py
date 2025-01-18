@@ -6,7 +6,7 @@ from asyncpg import Pool
 import asyncio
 
 from localisation.translations.dice import translations as dice_translation
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 
 router = Router()
 
@@ -17,7 +17,7 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
     user_id = callback.from_user.id
     game_id = int(callback.data.split(":")[1])
     chat_id = callback.message.chat.id
-    user_language = await check_language(pool, chat_id)
+    user_language = await get_language(pool, chat_id)
 
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""

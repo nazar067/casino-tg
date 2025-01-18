@@ -2,7 +2,7 @@ from aiogram.types import Message, CallbackQuery
 from aiogram import Router
 import re
 from user.transactions import get_user_transactions
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 from keyboards.keyboard import pagination_keyboard
 
@@ -16,7 +16,7 @@ async def history_handler(message_or_callback, pool, page: int = 1):
     """
     user_id, chat_id, is_callback = extract_user_and_chat_data(message_or_callback)
 
-    user_language = await check_language(pool, chat_id)
+    user_language = await get_language(pool, chat_id)
 
     transactions = await get_user_transactions(pool, user_id)
 

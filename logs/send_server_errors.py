@@ -2,7 +2,7 @@ import os
 from aiogram.types import Message
 from aiogram.types.input_file import FSInputFile
 from aiogram.exceptions import TelegramBadRequest
-from localisation.check_language import check_language
+from localisation.get_language import get_language
 from localisation.translations.server import translations as server_translation
 
 from admin.check_is_admin import is_user_admin
@@ -13,7 +13,7 @@ async def send_server_logs(message: Message, dp):
     """
     pool = dp["db_pool"]
     user_id = message.from_user.id
-    user_language = await check_language(pool, message.chat.id)
+    user_language = await get_language(pool, message.chat.id)
 
     if not is_user_admin(user_id):
         return
