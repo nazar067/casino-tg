@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 from aiogram.types import Message
 from aiogram import Router
@@ -28,6 +29,7 @@ async def handle_dice_roll(pool, message: Message):
             return
 
         game_id = game["id"]
+        chat_id = game["chat_id"]
         player2_username = (await bot.get_chat(game["player2_id"])).username
         
         if game["player2_id"] is None:
@@ -41,9 +43,9 @@ async def handle_dice_roll(pool, message: Message):
 
             await connection.execute("""
                 UPDATE gameDice
-                SET number1 = $1
-                WHERE id = $2
-            """, dice_value, game_id)
+                SET number1 = $1, time_after_first_roll = $2
+                WHERE id = $3
+            """, dice_value, datetime.now(), game_id)
 
             await message.reply(dice_translation["first_result"][user_language].format(dice_value=dice_value, user_name=player2_username))
 

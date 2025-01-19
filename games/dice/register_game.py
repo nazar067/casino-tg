@@ -36,10 +36,10 @@ async def create_game_handler(message: Message, pool, state):
 
     async with pool.acquire() as connection:
         game_id = await connection.fetchval("""
-            INSERT INTO gameDice (player1_id, bet, is_closed)
-            VALUES ($1, $2, FALSE)
+            INSERT INTO gameDice (chat_id, player1_id, bet, is_closed)
+            VALUES ($1, $2, $3, FALSE)
             RETURNING id
-        """, user_id, bet)
+        """, message.chat.id, user_id, bet)
 
     # Сохраняем ID сообщения команды и добавляем в состояние
     creator_message_id = message.message_id

@@ -186,7 +186,7 @@ async def main():
     dp["db_pool"] = pool
     await init_db(pool)
     dp.include_router(router)
-    asyncio.create_task(periodic_cleanup(pool))
+    asyncio.create_task(periodic_cleanup(pool, bot))
 
     try:
         print("Bot started")
