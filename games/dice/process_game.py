@@ -110,11 +110,11 @@ async def determine_winner(pool, game_id, user_language, bot):
         if game["number1"] > game["number2"]:
             winner_id = player1_id
             loser_id = player2_id
-            winner_message = dice_translation["first_player_winner"][user_language].format(winner_name=player1_username)
+            winner_message = dice_translation["first_player_winner"][user_language].format(winner_name=player1_username, bet=bet)
         elif game["number1"] < game["number2"]:
             winner_id = player2_id
             loser_id = player1_id
-            winner_message = dice_translation["second_player_winner"][user_language].format(winner_name=player2_username)
+            winner_message = dice_translation["second_player_winner"][user_language].format(winner_name=player2_username, bet=bet)
         else:
             winner_id = None
             loser_id = None

@@ -87,7 +87,7 @@ async def check_game_status(pool, bot):
         # Напоминания через 5 минут после первого броска (если предупреждение не отправлено)
         warning_time = now - timedelta(minutes=5)
         games_to_warn = await connection.fetch("""
-            SELECT id, chat_id 
+            SELECT id, chat_id, player2_id 
             FROM gameDice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
@@ -96,12 +96,19 @@ async def check_game_status(pool, bot):
 
         for game in games_to_warn:
             user_language = await get_language(pool, game["chat_id"])
+            player2_id = game["player2_id"]
+
+            if not player2_id:
+                logging.warning(f"Game {game['id']} has no second player.")
+                continue
+
+            player2_username = (await bot.get_chat(player2_id)).username
+
             await bot.send_message(
                 chat_id=game["chat_id"],
-                text=dice_translation["warning_for_second_player"][user_language]
+                text=dice_translation["warning_for_second_player"][user_language].format(second_player=player2_username)
             )
 
-            # Обновляем поле warning_sent, чтобы сообщение не отправлялось повторно
             await connection.execute("""
                 UPDATE gameDice
                 SET warning_sent = TRUE
@@ -111,22 +118,24 @@ async def check_game_status(pool, bot):
         # Завершение игр через 10 минут после первого броска
         expiration_time = now - timedelta(minutes=10)
         expired_games = await connection.fetch("""
-            SELECT id, chat_id, player1_id, bet 
+            SELECT id, chat_id, player1_id, bet, player2_id
             FROM gameDice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
         """, expiration_time)
 
         for game in expired_games:
-            await award_first_player_as_winner(pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"])
+            await award_first_player_as_winner(pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"], game["player2_id"])
 
-async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat_id):
+async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat_id, player2_id):
     """
     Присуждает победу первому игроку, если второй игрок не бросил кубик в течение 10 минут.
     """
     async with pool.acquire() as connection:
         try:
             user_language = await get_language(pool, chat_id)
+            player1_username = (await bot.get_chat(player1_id)).username
+            player2_username = (await bot.get_chat(player2_id)).username
             # Начисляем ставку первому игроку
             await account_addition(pool, player1_id, bet)
 
@@ -140,7 +149,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
             # Отправляем сообщение в чат
             await bot.send_message(
                 chat_id=chat_id,
-                text=dice_translation["first_player_auto_win"][user_language]
+                text=dice_translation["first_player_auto_win"][user_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)
             )
         except Exception as e:
             logging.error(f"Error awarding game {game_id} to player {player1_id}: {e}")
