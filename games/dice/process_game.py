@@ -30,6 +30,11 @@ async def handle_dice_roll(pool, message: Message):
 
         game_id = game["id"]
         chat_id = game["chat_id"]
+        
+        if message.chat.id != chat_id:
+            await message.reply(dice_translation["error_already_in_game_msg"][user_language])
+            return
+        
         player2_username = (await bot.get_chat(game["player2_id"])).username
         
         if game["player2_id"] is None:

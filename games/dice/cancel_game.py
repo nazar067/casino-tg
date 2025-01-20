@@ -71,9 +71,10 @@ async def check_game_status(pool, bot):
         """, expiration_time_no_moves)
 
         for game in expired_games_no_moves:
+            user_language = await get_language(pool, game["chat_id"])
             await bot.send_message(
                 chat_id=game["chat_id"],
-                text="⏳ Игра была отменена, так как никто не бросил кость за 10 минут."
+                text=dice_translation["time_out"][user_language]
             )
 
         if expired_games_no_moves:
@@ -94,9 +95,10 @@ async def check_game_status(pool, bot):
         """, warning_time)
 
         for game in games_to_warn:
+            user_language = await get_language(pool, game["chat_id"])
             await bot.send_message(
                 chat_id=game["chat_id"],
-                text="⚠️ Второй игрок, если вы не бросите кость в течение 5 минут, вы проиграете."
+                text=dice_translation["warning_for_second_player"][user_language]
             )
 
             # Обновляем поле warning_sent, чтобы сообщение не отправлялось повторно
@@ -124,6 +126,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
     """
     async with pool.acquire() as connection:
         try:
+            user_language = await get_language(pool, chat_id)
             # Начисляем ставку первому игроку
             await account_addition(pool, player1_id, bet)
 
@@ -137,7 +140,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
             # Отправляем сообщение в чат
             await bot.send_message(
                 chat_id=chat_id,
-                text="⏳ Время истекло! Второй игрок не бросил кость. Первый игрок победил."
+                text=dice_translation["first_player_auto_win"][user_language]
             )
         except Exception as e:
             logging.error(f"Error awarding game {game_id} to player {player1_id}: {e}")
