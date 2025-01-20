@@ -65,7 +65,7 @@ async def check_game_status(pool, bot):
         # Удаляем игры, где никто не бросил кубик в течение 10 минут
         expiration_time_no_moves = now - timedelta(minutes=10)
         expired_games_no_moves = await connection.fetch("""
-            SELECT id, chat_id 
+            SELECT id, chat_id, start_msg_id 
             FROM gameDice
             WHERE is_closed = FALSE AND number1 IS NULL AND timestamp <= $1
         """, expiration_time_no_moves)
@@ -76,6 +76,11 @@ async def check_game_status(pool, bot):
                 chat_id=game["chat_id"],
                 text=dice_translation["time_out"][user_language]
             )
+
+            try:
+                await bot.delete_message(chat_id=game["chat_id"], message_id=game["start_msg_id"])
+            except Exception as e:
+                logging.warning(f"Unable to delete message {game['start_msg_id']} in chat {game['chat_id']}: {e}")
 
         if expired_games_no_moves:
             expired_ids = [game["id"] for game in expired_games_no_moves]
@@ -125,7 +130,9 @@ async def check_game_status(pool, bot):
         """, expiration_time)
 
         for game in expired_games:
-            await award_first_player_as_winner(pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"], game["player2_id"])
+            await award_first_player_as_winner(
+                pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"], game["player2_id"]
+            )
 
 async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat_id, player2_id):
     """

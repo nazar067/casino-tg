@@ -35,23 +35,29 @@ async def create_game_handler(message: Message, pool, state):
         return
 
     async with pool.acquire() as connection:
-        game_id = await connection.fetchval("""
-            INSERT INTO gameDice (chat_id, player1_id, bet, is_closed)
-            VALUES ($1, $2, $3, FALSE)
-            RETURNING id
-        """, message.chat.id, user_id, bet)
+        # Отправляем сообщение в чат и сохраняем его ID
+        game_message = await message.answer(
+            dice_translation["wait_second_player_msg"][user_language].format(game_id="...", bet=bet),
+            reply_markup=game_buttons("...", bet, user_language)
+        )
+        game_message_id = game_message.message_id
 
-    # Сохраняем ID сообщения команды и добавляем в состояние
-    creator_message_id = message.message_id
-    game_message = await message.answer(
-        dice_translation["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
-        reply_markup=game_buttons(game_id, bet, user_language)
-    )
-    game_message_id = game_message.message_id
+        # Создаем запись в таблице gameDice
+        game_id = await connection.fetchval("""
+            INSERT INTO gameDice (chat_id, start_msg_id, player1_id, bet, is_closed)
+            VALUES ($1, $2, $3, $4, FALSE)
+            RETURNING id
+        """, message.chat.id, game_message_id, user_id, bet)
+
+        # Обновляем сообщение с корректным game_id
+        await game_message.edit_text(
+            dice_translation["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
+            reply_markup=game_buttons(game_id, bet, user_language)
+        )
 
     # Сохраняем данные игры в состояние
     await state.update_data(
-        creator_message_id=creator_message_id,
+        creator_message_id=message.message_id,
         game_message_id=game_message_id,
         game_id=game_id
     )

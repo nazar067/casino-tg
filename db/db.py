@@ -52,6 +52,7 @@ async def init_db(pool):
             CREATE TABLE IF NOT EXISTS gameDice (
                 id SERIAL PRIMARY KEY,
                 chat_id BIGINT NOT NULL,
+                start_msg_id BIGINT NOT NULL,
                 player1_id BIGINT NOT NULL,
                 player2_id BIGINT,
                 winner_id BIGINT,
