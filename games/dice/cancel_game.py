@@ -33,17 +33,14 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
             await callback.answer(dice_translation["cancel_creator_error_msg"][user_language], show_alert=True)
             return
 
-        # Удаляем игру из базы данных
         await connection.execute("""
             DELETE FROM gameDice WHERE id = $1
         """, game_id)
 
-    # Извлекаем данные из состояния
     data = await state.get_data()
     creator_message_id = data.get("creator_message_id")
     game_message_id = data.get("game_message_id")
 
-    # Удаляем сообщения
     try:
         if creator_message_id:
             await callback.bot.delete_message(callback.message.chat.id, creator_message_id)
@@ -51,7 +48,6 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
         if game_message_id:
             await callback.bot.delete_message(callback.message.chat.id, game_message_id)
 
-    # Очищаем состояние
     await state.clear()
     await callback.answer(dice_translation["cancel_success_msg"][user_language])
 
@@ -62,7 +58,6 @@ async def check_game_status(pool, bot):
     async with pool.acquire() as connection:
         now = datetime.now()
 
-        # Удаляем игры, где никто не бросил кубик в течение 10 минут
         expiration_time_no_moves = now - timedelta(minutes=10)
         expired_games_no_moves = await connection.fetch("""
             SELECT id, chat_id, start_msg_id 
@@ -89,7 +84,6 @@ async def check_game_status(pool, bot):
                 WHERE id = ANY($1::int[])
             """, expired_ids)
 
-        # Напоминания через 5 минут после первого броска (если предупреждение не отправлено)
         warning_time = now - timedelta(minutes=5)
         games_to_warn = await connection.fetch("""
             SELECT id, chat_id, player2_id 
@@ -120,7 +114,6 @@ async def check_game_status(pool, bot):
                 WHERE id = $1
             """, game["id"])
 
-        # Завершение игр через 10 минут после первого броска
         expiration_time = now - timedelta(minutes=10)
         expired_games = await connection.fetch("""
             SELECT id, chat_id, player1_id, bet, player2_id
@@ -143,17 +136,15 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
             user_language = await get_language(pool, chat_id)
             player1_username = (await bot.get_chat(player1_id)).username
             player2_username = (await bot.get_chat(player2_id)).username
-            # Начисляем ставку первому игроку
+            
             await account_addition(pool, player1_id, bet)
 
-            # Обновляем статус игры и устанавливаем победителя
             await connection.execute("""
                 UPDATE gameDice
                 SET is_closed = TRUE, winner_id = $1
                 WHERE id = $2
             """, player1_id, game_id)
 
-            # Отправляем сообщение в чат
             await bot.send_message(
                 chat_id=chat_id,
                 text=dice_translation["first_player_auto_win"][user_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)

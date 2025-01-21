@@ -1,9 +1,9 @@
-from handlers.language_handler import set_language_handler
-from logs.send_server_errors import send_server_logs
+from bot_settings.commands import set_bot_commands
+from bot_settings.description import set_bot_description
+from bot_settings.short_description import set_bot_short_description
 from logs.write_server_errors import setup_logging
 setup_logging()
 
-from keyboards.keyboard import language_keyboard
 from aiogram import Bot, Dispatcher, Router
 from aiogram.types import Message, CallbackQuery, PreCheckoutQuery
 from aiogram.filters import Command
@@ -11,6 +11,9 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from config import API_TOKEN
 from finance.payment import process_payment, handle_successful_payment
+from keyboards.keyboard import language_keyboard
+from logs.send_server_errors import send_server_logs
+from handlers.language_handler import set_language_handler
 from games.dice.register_game import create_game_handler
 from handlers.balance_handler import balance_handler
 from handlers.donate_handler import donate_handler
@@ -186,6 +189,11 @@ async def main():
     dp["db_pool"] = pool
     await init_db(pool)
     dp.include_router(router)
+    
+    await set_bot_description(bot)
+    await set_bot_commands(bot)
+    await set_bot_short_description(bot)
+    
     asyncio.create_task(periodic_cleanup(pool, bot))
 
     try:
