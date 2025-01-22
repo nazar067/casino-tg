@@ -207,7 +207,7 @@ async def main():
     try:
         print("Bot started")
         await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot, allowed_updates=["message", "callback_query"])
+        await dp.start_polling(bot, allowed_updates=["message", "callback_query", "pre_checkout_query"])
     finally:
         await pool.close()
         await bot.session.close()

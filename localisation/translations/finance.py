@@ -1,6 +1,6 @@
 translations = {
     "payment_title": {
-        "en": "Replenishing the stars",
+        "en": "Deposit the stars",
         "ru": "Пополнение звёзд",
         "uk": "Поповнення зірок",
     },
@@ -15,7 +15,7 @@ translations = {
         "uk": "💰 Поповнити ⬇️",
     },
     "donate_text":{
-        "en": "💰Select the number of stars to replenish⬇️",
+        "en": "💰Select the number of stars to deposit⬇️",
         "ru": "💰Выберите количество звезд для пополнения⬇️",
         "uk": "💰Виберіть кількість зірок для поповнення⬇️",
     },
@@ -40,7 +40,7 @@ translations = {
         "uk": "Доступно для виведення: {available_stars} зірок ⭐️\n",
     },
     "withdraw_unavailable": {
-        "en": "Withdrawal of stars is available only after 21 days after replenishment(details /privacy)\n\n Not enough stars for withdrawal. Available: {available_stars} ⭐️, need a minimum of 1000 ⭐️.",
+        "en": "Withdrawal of stars is available only after 21 days after deposit(details /privacy)\n\n Not enough stars for withdrawal. Available: {available_stars} ⭐️, need a minimum of 1000 ⭐️.",
         "ru": "Вывод звезд доступен только через 21 день после пополнения(подробнее /privacy)\n\nНедостаточно звёзд для вывода. Доступно: {available_stars} ⭐️, нужно минимум 1000 ⭐️.",
         "uk": "Виведення зірок доступне тільки через 21 день після поповнення (докладніше /privacy)\n\nНедостатньо зірок для виведення. Доступно: {available_stars} ⭐️, потрібно мінімум 1000 ⭐️.",
     },
