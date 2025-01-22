@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardBut
 from localisation.translations.finance import translations as finance_translation
 from localisation.translations.dice import translations as dice_translation
 
-amounts = [100, 250, 500, 1000, 2500, 10000] 
+amounts = [25, 50, 100, 250, 500, 1000, 2500, 10000] 
 
 def payment_keyboard(language: str) -> InlineKeyboardMarkup:
     """
