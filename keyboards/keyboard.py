@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardBut
 from localisation.translations.finance import translations as finance_translation
 from localisation.translations.dice import translations as dice_translation
 
-amounts = [3, 50, 100, 200, 500, 1000] 
+amounts = [100, 250, 500, 1000, 2500, 10000] 
 
 def payment_keyboard(language: str) -> InlineKeyboardMarkup:
     """
@@ -14,7 +14,7 @@ def payment_keyboard(language: str) -> InlineKeyboardMarkup:
 
     for amount in amounts:
         builder.button(
-            text=f"{text} на {amount} ⭐️",
+            text=f"{text}{amount}⭐️",
             callback_data=f"pay:{amount}"
         )
     builder.adjust(2)
