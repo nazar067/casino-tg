@@ -1,6 +1,3 @@
-from bot_settings.commands import set_bot_commands
-from bot_settings.description import set_bot_description
-from bot_settings.short_description import set_bot_short_description
 from logs.write_server_errors import setup_logging
 setup_logging()
 
@@ -10,6 +7,10 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from config import API_TOKEN
+from privacy.privacy import get_privacy
+from bot_settings.commands import set_bot_commands
+from bot_settings.description import set_bot_description
+from bot_settings.short_description import set_bot_short_description
 from finance.payment import process_payment, handle_successful_payment
 from keyboards.keyboard import language_keyboard
 from logs.send_server_errors import send_server_logs
@@ -88,6 +89,13 @@ async def change_language_handler(message: Message):
         general_translation["choose_lang"][user_language],
         reply_markup=language_keyboard()
     )
+    
+@router.message(Command(commands=["privacy"]))
+async def privacy_handler(message: Message):
+    """
+    Обработка команды /privacy.
+    """
+    await get_privacy(message, dp)
 
 @router.callback_query(lambda callback: callback.data.startswith("join_game:"))
 async def join_dice_handler(callback: CallbackQuery):
@@ -198,7 +206,8 @@ async def main():
 
     try:
         print("Bot started")
-        await dp.start_polling(bot)
+        await bot.delete_webhook(drop_pending_updates=True)
+        await dp.start_polling(bot, allowed_updates=["message", "callback_query"])
     finally:
         await pool.close()
         await bot.session.close()
