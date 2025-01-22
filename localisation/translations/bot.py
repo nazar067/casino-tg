@@ -1,8 +1,8 @@
 translations = {
     "short_description": {
-        "en": "Bot to play dice on Telegram stars with friends🎲\n\nOur group, if you don't have anyone to play with https://t.me/diceGamingGroup.",
-        "ru": "Бот для игры в кости на Telegram звезды с друзьями🎲\n\nНаша группа, если вам не с кем сыграть https://t.me/diceGamingGroup",
-        "uk": "Бот для гри в кості на Telegram зірки з друзями🎲\n\nНаша група, якщо вам нема з ким зіграти https://t.me/diceGamingGroup",
+        "en": "Bot to play dice on Telegram stars with friends🎲\n\nOur group for games https://t.me/diceGamingGroup.",
+        "ru": "Бот для игры в кости на Telegram звезды с друзьями🎲\n\nНаша группа для игр https://t.me/diceGamingGroup",
+        "uk": "Бот для гри в кості на Telegram зірки з друзями🎲\n\nНаша група для ігор https://t.me/diceGamingGroup",
     },
     "description": {
         "en": "To play with friends in 🎲, add the bot to the group and write /start, it is desirable to appoint the bot as an administrator or give permission to delete messages to avoid errors. Have a good game🍀",
