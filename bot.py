@@ -129,7 +129,7 @@ async def history_user_handler(callback: CallbackQuery, state: FSMContext):
     pool = dp["db_pool"]
     await history_pagination_handler(callback, pool)
 
-@router.message(lambda message: message.dice and not message.forward_date)
+@router.message(lambda message: message.dice and message.dice.emoji == "🎲" and not message.forward_date)
 async def dice_roll_handler(message: Message):
     """
     Обработка броска кубика игроками.
