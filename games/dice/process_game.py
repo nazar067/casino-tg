@@ -20,7 +20,7 @@ async def handle_dice_roll(pool, message: Message):
 
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""
-            SELECT * FROM gameDice
+            SELECT * FROM game_dice
             WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
         """, user_id)
 
@@ -47,7 +47,7 @@ async def handle_dice_roll(pool, message: Message):
                 return
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET number1 = $1, time_after_first_roll = $2
                 WHERE id = $3
             """, dice_value, datetime.now(), game_id)
@@ -64,7 +64,7 @@ async def handle_dice_roll(pool, message: Message):
                 return
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET number2 = $1, is_closed = TRUE
                 WHERE id = $2
             """, dice_value, game_id)
@@ -78,7 +78,7 @@ async def handle_dice_roll(pool, message: Message):
                 await message.answer(result_message)
             except Exception as e:
                 await connection.execute("""
-                    UPDATE gameDice
+                    UPDATE game_dice
                     SET is_closed = TRUE
                     WHERE id = $1
                 """, game_id)
@@ -93,7 +93,7 @@ async def determine_winner(pool, game_id, user_language, bot):
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""
             SELECT player1_id, player2_id, number1, number2, bet
-            FROM gameDice
+            FROM game_dice
             WHERE id = $1
         """, game_id)
 
@@ -125,7 +125,7 @@ async def determine_winner(pool, game_id, user_language, bot):
             await account_addition(pool, winner_id, bet)
 
         await connection.execute("""
-            UPDATE gameDice
+            UPDATE game_dice
             SET winner_id = $1, is_closed = TRUE
             WHERE id = $2
         """, winner_id, game_id)

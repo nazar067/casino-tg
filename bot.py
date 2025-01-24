@@ -1,3 +1,4 @@
+from games.dice.search_online_dice import search_dice
 from logs.write_server_errors import setup_logging
 setup_logging()
 
@@ -54,6 +55,23 @@ async def dice_handler(message: Message, state: FSMContext):
     """
     pool = dp["db_pool"]
     await create_game_handler(message, pool, state)
+    
+@router.message(Command(commands=["diceonline"]))
+async def online_dice_handler(message: Message, state: FSMContext):
+    """
+    Команда /diceonline для создания игры в кости.
+    """
+    pool = dp["db_pool"]
+    await create_game_handler(message, pool, state, True)
+    
+@router.message(Command(commands=["searchdice"]))
+async def online_dice_handler(message: Message, state: FSMContext):
+    """
+    Команда /searchdice для создания игры в кости.
+    """
+    pool = dp["db_pool"]
+    print("first")
+    await search_dice(pool, bot, message, min_bet=10, max_bet=30)
     
 @router.message(Command(commands=["serverLogs"]))
 async def server_logs(message: Message):
@@ -198,9 +216,9 @@ async def main():
     await init_db(pool)
     dp.include_router(router)
     
-    await set_bot_description(bot)
-    await set_bot_commands(bot)
-    await set_bot_short_description(bot)
+    #await set_bot_description(bot)
+    #await set_bot_commands(bot)
+    #await set_bot_short_description(bot)
     
     asyncio.create_task(periodic_cleanup(pool, bot))
 

@@ -4,7 +4,7 @@ async def has_active_game(pool, user_id):
     """
     async with pool.acquire() as connection:
         active_game = await connection.fetchrow("""
-            SELECT id FROM gameDice
+            SELECT id FROM game_dice
             WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
         """, user_id)
         return active_game is not None

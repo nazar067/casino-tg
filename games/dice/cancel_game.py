@@ -22,7 +22,7 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
 
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""
-            SELECT * FROM gameDice WHERE id = $1 AND is_closed = FALSE
+            SELECT * FROM game_dice WHERE id = $1 AND is_closed = FALSE
         """, game_id)
 
         if not game:
@@ -34,7 +34,7 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
             return
 
         await connection.execute("""
-            DELETE FROM gameDice WHERE id = $1
+            DELETE FROM game_dice WHERE id = $1
         """, game_id)
 
     data = await state.get_data()
@@ -61,7 +61,7 @@ async def check_game_status(pool, bot):
         expiration_time_no_moves = now - timedelta(minutes=10)
         expired_games_no_moves = await connection.fetch("""
             SELECT id, chat_id, start_msg_id 
-            FROM gameDice
+            FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NULL AND timestamp <= $1
         """, expiration_time_no_moves)
 
@@ -80,14 +80,14 @@ async def check_game_status(pool, bot):
         if expired_games_no_moves:
             expired_ids = [game["id"] for game in expired_games_no_moves]
             await connection.execute("""
-                DELETE FROM gameDice
+                DELETE FROM game_dice
                 WHERE id = ANY($1::int[])
             """, expired_ids)
 
         warning_time = now - timedelta(minutes=5)
         games_to_warn = await connection.fetch("""
             SELECT id, chat_id, player2_id 
-            FROM gameDice
+            FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
             AND warning_sent = FALSE
@@ -109,7 +109,7 @@ async def check_game_status(pool, bot):
             )
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET warning_sent = TRUE
                 WHERE id = $1
             """, game["id"])
@@ -117,7 +117,7 @@ async def check_game_status(pool, bot):
         expiration_time = now - timedelta(minutes=10)
         expired_games = await connection.fetch("""
             SELECT id, chat_id, player1_id, bet, player2_id
-            FROM gameDice
+            FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
         """, expiration_time)
@@ -140,7 +140,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
             await account_addition(pool, player1_id, bet)
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET is_closed = TRUE, winner_id = $1
                 WHERE id = $2
             """, player1_id, game_id)
