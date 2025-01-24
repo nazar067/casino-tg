@@ -1,6 +1,6 @@
 translations = {
     "short_description": {
-        "en": "Bot to play dice on Telegram stars with friends🎲\n\nOur group for games https://t.me/diceGamingGroup.",
+        "en": "Bot to play dice on Telegram stars with friends🎲\n\nOur group for games https://t.me/diceGamingGroup",
         "ru": "Бот для игры в кости на Telegram звезды с друзьями🎲\n\nНаша группа для игр https://t.me/diceGamingGroup",
         "uk": "Бот для гри в кості на Telegram зірки з друзями🎲\n\nНаша група для ігор https://t.me/diceGamingGroup",
     },

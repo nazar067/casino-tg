@@ -76,8 +76,8 @@ translations = {
     },
     "user_no_game_msg":{
         "en": "To start the game, write the command /dice amount bet, for example /dice 100",
-        "ru": "Чтобы начать игру, напишите команду /dice сумма ставка, к примеру /dice 100",
-        "uk": "Щоб почати гру, напишіть команду /dice сума ставка, наприклад /dice 100",
+        "ru": "Чтобы начать игру, напишите команду /dice сумма ставки, к примеру /dice 100",
+        "uk": "Щоб почати гру, напишіть команду /dice сума ставки, наприклад /dice 100",
     },
     "already_roll_dice":{
         "en": "⚠️ You've already rolled the dice. We are waiting for the second player to roll.",
