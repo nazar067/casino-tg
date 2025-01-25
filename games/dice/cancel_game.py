@@ -58,7 +58,7 @@ async def check_game_status(pool, bot):
     async with pool.acquire() as connection:
         now = datetime.now()
 
-        expiration_time_no_moves = now - timedelta(minutes=10)
+        expiration_time_no_moves = now - timedelta(minutes=2)
         expired_games_no_moves = await connection.fetch("""
             SELECT id, chat_id, start_msg_id 
             FROM game_dice
@@ -84,9 +84,9 @@ async def check_game_status(pool, bot):
                 WHERE id = ANY($1::int[])
             """, expired_ids)
 
-        warning_time = now - timedelta(minutes=5)
+        warning_time = now - timedelta(minutes=1)
         games_to_warn = await connection.fetch("""
-            SELECT id, chat_id, player2_id 
+            SELECT id, chat_id, player2_id, online
             FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
@@ -96,6 +96,18 @@ async def check_game_status(pool, bot):
         for game in games_to_warn:
             user_language = await get_language(pool, game["chat_id"])
             player2_id = game["player2_id"]
+            if game["online"] is True:
+                player2_language = await get_language(pool, player2_id)
+                await bot.send_message(
+                    chat_id=player2_id,
+                    text="Warning"
+                )
+                await connection.execute("""
+                    UPDATE game_dice
+                    SET warning_sent = TRUE
+                    WHERE id = $1
+                """, game["id"])
+                continue
 
             if not player2_id:
                 logging.warning(f"Game {game['id']} has no second player.")
@@ -114,9 +126,9 @@ async def check_game_status(pool, bot):
                 WHERE id = $1
             """, game["id"])
 
-        expiration_time = now - timedelta(minutes=10)
+        expiration_time = now - timedelta(minutes=2)
         expired_games = await connection.fetch("""
-            SELECT id, chat_id, player1_id, bet, player2_id
+            SELECT id, chat_id, player1_id, bet, player2_id, online
             FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NOT NULL 
             AND number2 IS NULL AND time_after_first_roll <= $1
@@ -124,10 +136,10 @@ async def check_game_status(pool, bot):
 
         for game in expired_games:
             await award_first_player_as_winner(
-                pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"], game["player2_id"]
+                pool, bot, game["id"], game["player1_id"], game["bet"], game["chat_id"], game["player2_id"], game["online"]
             )
 
-async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat_id, player2_id):
+async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat_id, player2_id, online):
     """
     Присуждает победу первому игроку, если второй игрок не бросил кубик в течение 10 минут.
     """
@@ -145,6 +157,12 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
                 WHERE id = $2
             """, player1_id, game_id)
 
+            if online is True:
+                await bot.send_message(
+                    chat_id=player2_id,
+                    text=dice_translation["first_player_auto_win"][user_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)
+                )
+            
             await bot.send_message(
                 chat_id=chat_id,
                 text=dice_translation["first_player_auto_win"][user_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)

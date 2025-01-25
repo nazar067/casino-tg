@@ -1,3 +1,4 @@
+from games.dice.process_game_online import handle_dice_online_roll
 from games.dice.search_online_dice import search_dice
 from logs.write_server_errors import setup_logging
 setup_logging()
@@ -70,7 +71,6 @@ async def online_dice_handler(message: Message, state: FSMContext):
     Команда /searchdice для создания игры в кости.
     """
     pool = dp["db_pool"]
-    print("first")
     await search_dice(pool, bot, message, min_bet=10, max_bet=30)
     
 @router.message(Command(commands=["serverLogs"]))
@@ -153,7 +153,10 @@ async def dice_roll_handler(message: Message):
     Обработка броска кубика игроками.
     """
     pool = dp["db_pool"]
-    await handle_dice_roll(pool, message)
+    if message.chat.type == "private":
+        await handle_dice_online_roll(pool, message)
+    else:
+        await handle_dice_roll(pool, message)
 
 @router.callback_query(lambda c: c.data.startswith("pay:"))
 async def pay_stars_handler(callback: CallbackQuery):

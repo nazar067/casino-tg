@@ -154,4 +154,9 @@ translations = {
         "ru": "⏳ Время истекло! @{second_player} не бросил кость. @{first_player} выиграл {bet}⭐️.",
         "uk": "⏳ Час минув! @{second_player} не кинув кістку. @{first_player} виграв {bet}⭐️.",
     },
+    "first_player_rolled": {
+        "en": "🎲 @{user_name} rolled a dice with a value of {dice_value}. It's your turn!",
+        "ru": "🎲 @{user_name} выбросил кость со значением {dice_value}. Ваш ход!",
+        "uk": "🎲 @{user_name} кинув кістку зі значенням {dice_value}. Ваш хід!",
+    },
 }

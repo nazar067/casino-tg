@@ -14,7 +14,6 @@ async def search_dice(pool, bot, message, min_bet: int, max_bet: int):
     :param max_bet: Максимальная ставка для поиска игр.
     """
     try:
-        # Получаем user_id из user_context
         if isinstance(message, Message):
             user_id = message.from_user.id
             chat_id = message.chat.id
@@ -25,7 +24,6 @@ async def search_dice(pool, bot, message, min_bet: int, max_bet: int):
             raise ValueError("Invalid user context provided. Must be Message or CallbackQuery.")
 
         async with pool.acquire() as connection:
-            # Ищем подходящие игры
             game = await connection.fetchrow("""
                 SELECT id, player1_id, bet
                 FROM game_dice
@@ -46,7 +44,6 @@ async def search_dice(pool, bot, message, min_bet: int, max_bet: int):
             game_id = game["id"]
             bet = game["bet"]
 
-            # Создаем объект CallbackQuery для вызова join_game_handler
             fake_callback = CallbackQuery(
                 id="search_dice_callback",
                 from_user=message.from_user,
@@ -55,7 +52,6 @@ async def search_dice(pool, bot, message, min_bet: int, max_bet: int):
                 data=f"join_game:{game_id}"
             )
 
-            # Присоединяем пользователя к игре
             await join_game_handler(fake_callback, pool, bot)
     except Exception as e:
         logging.error(f"Error in search_dice: {e}", exc_info=True)
