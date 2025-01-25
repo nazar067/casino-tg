@@ -14,10 +14,10 @@ translations = {
         "ru": "✅ Язык успешно изменён",
         "uk": "✅ Мова успішно змінена",
     },
-    "msg_for_update_btns": {
-        "en": "⚠️ To change the language of the buttons - write /start again",
-        "ru": "⚠️ Чтобы изменить язык кнопок - напишите еще раз /start",
-        "uk": "⚠️ Щоб змінити мову кнопок - напишіть ще раз /start",
+    "updated_menu": {
+        "en": "✅ The menu has been updated according to the selected language.",
+        "ru": "✅ Меню обновлено в соответствии с выбранным языком.",
+        "uk": "✅ Меню оновлено відповідно до обраної мови."
     },
     "privacy": {
         "en":  "*Privacy Policy for Telegram Bot*\n\n"
