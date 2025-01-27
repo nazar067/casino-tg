@@ -60,13 +60,19 @@ async def check_game_status(pool, bot):
 
         expiration_time_no_moves = now - timedelta(minutes=2)
         expired_games_no_moves = await connection.fetch("""
-            SELECT id, chat_id, start_msg_id 
+            SELECT id, chat_id, start_msg_id, online, player2_id
             FROM game_dice
             WHERE is_closed = FALSE AND number1 IS NULL AND timestamp <= $1
         """, expiration_time_no_moves)
 
         for game in expired_games_no_moves:
             user_language = await get_language(pool, game["chat_id"])
+            if game["online"] is True:
+                player2_language = await get_language(pool, game["player2_id"])
+                await bot.send_message(
+                    chat_id=game["player2_id"],
+                    text=dice_translation["time_out"][player2_language]
+                )
             await bot.send_message(
                 chat_id=game["chat_id"],
                 text=dice_translation["time_out"][user_language]
@@ -96,21 +102,20 @@ async def check_game_status(pool, bot):
         for game in games_to_warn:
             user_language = await get_language(pool, game["chat_id"])
             player2_id = game["player2_id"]
+            if not player2_id:
+                logging.warning(f"Game {game['id']} has no second player.")
+                continue
             if game["online"] is True:
                 player2_language = await get_language(pool, player2_id)
                 await bot.send_message(
                     chat_id=player2_id,
-                    text="Warning"
+                    text=dice_translation["warning_for_second_player_online"][player2_language]
                 )
                 await connection.execute("""
                     UPDATE game_dice
                     SET warning_sent = TRUE
                     WHERE id = $1
                 """, game["id"])
-                continue
-
-            if not player2_id:
-                logging.warning(f"Game {game['id']} has no second player.")
                 continue
 
             player2_username = (await bot.get_chat(player2_id)).username
@@ -146,6 +151,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
     async with pool.acquire() as connection:
         try:
             user_language = await get_language(pool, chat_id)
+            player2_language = await get_language(pool, player2_id)
             player1_username = (await bot.get_chat(player1_id)).username
             player2_username = (await bot.get_chat(player2_id)).username
             
@@ -160,7 +166,7 @@ async def award_first_player_as_winner(pool, bot, game_id, player1_id, bet, chat
             if online is True:
                 await bot.send_message(
                     chat_id=player2_id,
-                    text=dice_translation["first_player_auto_win"][user_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)
+                    text=dice_translation["first_player_auto_win"][player2_language].format(second_player=player2_username, first_player=player1_username, bet=bet*2)
                 )
             
             await bot.send_message(

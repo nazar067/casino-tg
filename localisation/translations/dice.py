@@ -164,6 +164,11 @@ translations = {
         "ru": "⚠️ @{second_player}, если вы не бросите кость в течение 5 минут, вы проиграете.",
         "uk": "⚠️ @{second_player}, якщо ви не кинете кубик протягом 5 хвилин, ви програєте.",
     },
+    "warning_for_second_player_online":{
+        "en": "⚠️ If you don't roll a dice within 5 minutes, you lose.",
+        "ru": "⚠️ Если вы не бросите кость в течение 5 минут, вы проиграете.",
+        "uk": "⚠️ Якщо ви не кинете кубик протягом 5 хвилин, ви програєте.",
+    },
     "first_player_auto_win":{
         "en": "⏳ Time's up! @{second_player} did not roll a dice. @{first_player} won {bet}⭐️.",
         "ru": "⏳ Время истекло! @{second_player} не бросил кость. @{first_player} выиграл {bet}⭐️.",
