@@ -83,23 +83,26 @@ async def join_game_handler(callback: CallbackQuery, pool, online: bool = False)
         player1_username = (await bot.get_chat(game['player1_id'])).username
         player2_username = callback.from_user.username
 
-        new_message_text_player1 = dice_translation["game_start_msg"][player1_language].format(
+        new_message_text_player1 = dice_translation["game_start_online1_msg"][player1_language].format(
             game_id=game_id, player1_id=player1_username, user_id=player2_username
         )
-        new_message_text = dice_translation["game_start_msg"][chat_language].format(
+        new_message_text_player2 = dice_translation["game_start_online2_msg"][chat_language].format(
+            game_id=game_id, player1_id=player1_username, user_id=player2_username
+        )
+        new_message_text_offline = dice_translation["game_start_msg"][chat_language].format(
             game_id=game_id, player1_id=player1_username, user_id=player2_username
         )
 
         if online:
             await bot.send_message(game["player1_id"], new_message_text_player1)
-            await bot.send_message(user_id, new_message_text)
+            await bot.send_message(user_id, new_message_text_player2)
         else:
             try:
                 await callback.message.delete()
             except Exception as e:
                 logging.error(f"Error deleting start message {game_id}: {e}", exc_info=True)
 
-            await callback.message.answer(new_message_text)
+            await callback.message.answer(new_message_text_offline)
 
         if not online and callback.message:
             await callback.answer(dice_translation["succes_join_msg"][chat_language])

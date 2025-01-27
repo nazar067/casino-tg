@@ -59,6 +59,16 @@ translations = {
         "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\n@{player1_id}, чтобы начать отправьте эмодзи 🎲",
         "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\n@{player1_id}, щоб почати відправте емодзі 🎲",
     },
+    "game_start_online1_msg":{
+        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: @{player1_id}\n Player 2: @{user_id}\n\nTo start send an emoji 🎲",
+        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\nЧтобы начать отправьте эмодзи 🎲",
+        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\nЩоб почати відправте емодзі 🎲",
+    },
+    "game_start_online2_msg":{
+        "en": "🎲 Game #{game_id} is ready!\n\n Player 1: @{player1_id}\n Player 2: @{user_id}\n\nWait for the first player to roll",
+        "ru": "🎲 Игра #{game_id} готова!\n\nИгрок 1: @{player1_id}\nИгрок 2: @{user_id}\n\nОжидайте бросок первого игрока",
+        "uk": "🎲 Гра #{game_id} готова! \n\nГравець 1: @{player1_id}\nГравець 2: @{user_id}\n\nЧекайте на кидок першого гравця",
+    },
     "succes_join_msg":{
         "en": "You have successfully joined the game!",
         "ru": "Вы успешно присоединились к игре!",
@@ -88,6 +98,11 @@ translations = {
         "en": "🎲 You have thrown: {dice_value}. Wait for the second player to throw.\n\n @{user_name} your turn",
         "ru": "🎲 Вы выбросили: {dice_value}. Ожидаем броска второго игрока.\n\n @{user_name} ваш ход",
         "uk": "🎲 Ви викинули: {dice_value}. Очікуємо кидка другого гравця.\n\n @{user_name} ваш хід",
+    },
+    "first_result_online":{
+        "en": "🎲 You have thrown: {dice_value}.\n\n Wait for the second player to throw",
+        "ru": "🎲 Вы выбросили: {dice_value}.\n\n Ожидаем броска второго игрока",
+        "uk": "🎲 Ви викинули: {dice_value}.\n\n Очікуємо кидка другого гравця",
     },
     "wait_first_player":{
         "en": "⚠️ The first player has not yet rolled a dice.",
@@ -142,21 +157,21 @@ translations = {
     "time_out":{
         "en": "⏳ The game was canceled because no one rolled a dice in 10 minutes.",
         "ru": "⏳ Игра была отменена, так как никто не бросил кость за 10 минут.",
-        "uk": "⏳ Гру було скасовано, оскільки ніхто не кинув кістку за 10 хвилин.",
+        "uk": "⏳ Гру було скасовано, оскільки ніхто не кинув кубик за 10 хвилин.",
     },
     "warning_for_second_player":{
         "en": "⚠️ @{second_player}, if you don't roll a dice within 5 minutes, you lose.",
         "ru": "⚠️ @{second_player}, если вы не бросите кость в течение 5 минут, вы проиграете.",
-        "uk": "⚠️ @{second_player}, якщо ви не кинете кістку протягом 5 хвилин, ви програєте.",
+        "uk": "⚠️ @{second_player}, якщо ви не кинете кубик протягом 5 хвилин, ви програєте.",
     },
     "first_player_auto_win":{
         "en": "⏳ Time's up! @{second_player} did not roll a dice. @{first_player} won {bet}⭐️.",
         "ru": "⏳ Время истекло! @{second_player} не бросил кость. @{first_player} выиграл {bet}⭐️.",
-        "uk": "⏳ Час минув! @{second_player} не кинув кістку. @{first_player} виграв {bet}⭐️.",
+        "uk": "⏳ Час минув! @{second_player} не кинув кубик. @{first_player} виграв {bet}⭐️.",
     },
     "first_player_rolled": {
-        "en": "🎲 @{user_name} rolled a dice with a value of {dice_value}. It's your turn!",
-        "ru": "🎲 @{user_name} выбросил кость со значением {dice_value}. Ваш ход!",
-        "uk": "🎲 @{user_name} кинув кістку зі значенням {dice_value}. Ваш хід!",
+        "en": "🎲 @{user_name} rolled a dice with a value of {dice_value}.\n\nIt's your turn!",
+        "ru": "🎲 @{user_name} выбросил кость со значением {dice_value}.\n\nВаш ход!",
+        "uk": "🎲 @{user_name} кинув кубик зі значенням {dice_value}.\n\nВаш хід!",
     },
 }
