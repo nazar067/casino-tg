@@ -58,7 +58,7 @@ async def check_game_status(pool, bot):
     async with pool.acquire() as connection:
         now = datetime.now()
 
-        expiration_time_no_moves = now - timedelta(minutes=2)
+        expiration_time_no_moves = now - timedelta(minutes=10)
         expired_games_no_moves = await connection.fetch("""
             SELECT id, chat_id, start_msg_id, online, player2_id
             FROM game_dice
@@ -90,7 +90,7 @@ async def check_game_status(pool, bot):
                 WHERE id = ANY($1::int[])
             """, expired_ids)
 
-        warning_time = now - timedelta(minutes=1)
+        warning_time = now - timedelta(minutes=5)
         games_to_warn = await connection.fetch("""
             SELECT id, chat_id, player2_id, online
             FROM game_dice
@@ -131,7 +131,7 @@ async def check_game_status(pool, bot):
                 WHERE id = $1
             """, game["id"])
 
-        expiration_time = now - timedelta(minutes=2)
+        expiration_time = now - timedelta(minutes=10)
         expired_games = await connection.fetch("""
             SELECT id, chat_id, player1_id, bet, player2_id, online
             FROM game_dice
