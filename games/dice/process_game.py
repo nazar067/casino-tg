@@ -4,6 +4,7 @@ from aiogram.types import Message
 from aiogram import Router
 import asyncio
 from finance.account import account_addition, account_withdrawal
+from games.dice.game_result import process_game_result
 from localisation.get_language import get_language
 from localisation.translations.dice import translations as dice_translation
 
@@ -20,7 +21,7 @@ async def handle_dice_roll(pool, message: Message):
 
     async with pool.acquire() as connection:
         game = await connection.fetchrow("""
-            SELECT * FROM gameDice
+            SELECT * FROM game_dice
             WHERE (player1_id = $1 OR player2_id = $1) AND is_closed = FALSE
         """, user_id)
 
@@ -47,7 +48,7 @@ async def handle_dice_roll(pool, message: Message):
                 return
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET number1 = $1, time_after_first_roll = $2
                 WHERE id = $3
             """, dice_value, datetime.now(), game_id)
@@ -64,7 +65,7 @@ async def handle_dice_roll(pool, message: Message):
                 return
 
             await connection.execute("""
-                UPDATE gameDice
+                UPDATE game_dice
                 SET number2 = $1, is_closed = TRUE
                 WHERE id = $2
             """, dice_value, game_id)
@@ -78,7 +79,7 @@ async def handle_dice_roll(pool, message: Message):
                 await message.answer(result_message)
             except Exception as e:
                 await connection.execute("""
-                    UPDATE gameDice
+                    UPDATE game_dice
                     SET is_closed = TRUE
                     WHERE id = $1
                 """, game_id)
@@ -88,46 +89,25 @@ async def handle_dice_roll(pool, message: Message):
 
 async def determine_winner(pool, game_id, user_language, bot):
     """
-    Определяет победителя игры.
+    Определяет победителя офлайн-игры.
     """
-    async with pool.acquire() as connection:
-        game = await connection.fetchrow("""
-            SELECT player1_id, player2_id, number1, number2, bet
-            FROM gameDice
-            WHERE id = $1
-        """, game_id)
+    player1_id, player2_id, winner_id, loser_id, bet = await process_game_result(pool, game_id)
 
-        if not game or game["number1"] is None or game["number2"] is None:
-            return dice_translation["game_is_not_end"][user_language]
+    if player1_id is None or player2_id is None:
+        return dice_translation["game_is_not_end"][user_language]
 
-        bet = game["bet"]
-        player1_id = game["player1_id"]
-        player2_id = game["player2_id"]
+    player1_username = (await bot.get_chat(player1_id)).username
+    player2_username = (await bot.get_chat(player2_id)).username
 
-        player1_username = (await bot.get_chat(player1_id)).username
-        player2_username = (await bot.get_chat(player2_id)).username
+    if winner_id == player1_id:
+        winner_message = dice_translation["first_player_winner"][user_language].format(
+            winner_name=player1_username, bet=bet
+        )
+    elif winner_id == player2_id:
+        winner_message = dice_translation["second_player_winner"][user_language].format(
+            winner_name=player2_username, bet=bet
+        )
+    else:
+        winner_message = dice_translation["draw_msg"][user_language]
 
-        if game["number1"] > game["number2"]:
-            winner_id = player1_id
-            loser_id = player2_id
-            winner_message = dice_translation["first_player_winner"][user_language].format(winner_name=player1_username, bet=bet)
-        elif game["number1"] < game["number2"]:
-            winner_id = player2_id
-            loser_id = player1_id
-            winner_message = dice_translation["second_player_winner"][user_language].format(winner_name=player2_username, bet=bet)
-        else:
-            winner_id = None
-            loser_id = None
-            winner_message = dice_translation["draw_msg"][user_language]
-
-        if winner_id and loser_id:
-            await account_withdrawal(pool, loser_id, bet)
-            await account_addition(pool, winner_id, bet)
-
-        await connection.execute("""
-            UPDATE gameDice
-            SET winner_id = $1, is_closed = TRUE
-            WHERE id = $2
-        """, winner_id, game_id)
-
-        return f"{winner_message}\n" + dice_translation["game_end"][user_language]
+    return f"{winner_message}\n" + dice_translation["game_end"][user_language]

@@ -5,13 +5,13 @@ from games.dice.check_active_game import has_active_game
 from localisation.translations.dice import translations as dice_translation
 from localisation.get_language import get_language
 from user.balance import get_user_balance
-from keyboards.keyboard import game_buttons
+from keyboards.keyboard import game_buttons, online_game_buttons
 
 router = Router()
 
-async def create_game_handler(message: Message, pool, state):
+async def create_game_handler(message: Message, pool, state, online=False):
     """
-    Создание новой игры в кости.
+    Создание новой игры в кости (offline или online).
     """
     user_id = message.from_user.id
     user_language = await get_language(pool, message.chat.id)
@@ -27,41 +27,39 @@ async def create_game_handler(message: Message, pool, state):
     except (IndexError, ValueError):
         await message.answer(dice_translation["register_help_msg"][user_language])
         return
-
-    # Проверяем баланс игрока
+    
     user_balance = await get_user_balance(pool, user_id)
     if user_balance < bet:
         await message.answer(dice_translation["register_no_stars_msg"][user_language])
         return
 
     async with pool.acquire() as connection:
-        # Отправляем сообщение в чат и сохраняем его ID
         game_message = await message.answer(
             dice_translation["wait_second_player_msg"][user_language].format(game_id="...", bet=bet),
-            reply_markup=game_buttons("...", bet, user_language)
+            reply_markup=online_game_buttons("...", bet, user_language)
+            if online
+            else game_buttons("...", bet, user_language)
         )
         game_message_id = game_message.message_id
 
-        # Создаем запись в таблице gameDice
         game_id = await connection.fetchval("""
-            INSERT INTO gameDice (chat_id, start_msg_id, player1_id, bet, is_closed)
-            VALUES ($1, $2, $3, $4, FALSE)
+            INSERT INTO game_dice (chat_id, start_msg_id, player1_id, bet, is_closed, online)
+            VALUES ($1, $2, $3, $4, FALSE, $5)
             RETURNING id
-        """, message.chat.id, game_message_id, user_id, bet)
+        """, message.chat.id, game_message_id, user_id, bet, online)
 
-        # Обновляем сообщение с корректным game_id
         await game_message.edit_text(
             dice_translation["wait_second_player_msg"][user_language].format(game_id=game_id, bet=bet),
-            reply_markup=game_buttons(game_id, bet, user_language)
+            reply_markup=online_game_buttons(game_id, bet, user_language)
+            if online
+            else game_buttons(game_id, bet, user_language)
         )
 
-    # Сохраняем данные игры в состояние
     await state.update_data(
         creator_message_id=message.message_id,
         game_message_id=game_message_id,
         game_id=game_id
     )
 
-# Регистрация хендлеров в роутере
 def setup_register_game_handlers(dp: Dispatcher):
     dp.include_router(router)

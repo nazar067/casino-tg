@@ -49,7 +49,7 @@ async def init_db(pool):
             )
         """)
         await conn.execute("""
-            CREATE TABLE IF NOT EXISTS gameDice (
+            CREATE TABLE IF NOT EXISTS game_dice (
                 id SERIAL PRIMARY KEY,
                 chat_id BIGINT NOT NULL,
                 start_msg_id BIGINT NOT NULL,
@@ -62,7 +62,8 @@ async def init_db(pool):
                 is_closed BOOLEAN DEFAULT FALSE,
                 timestamp TIMESTAMP DEFAULT NOW(),
                 time_after_first_roll TIMESTAMP DEFAULT NULL,
-                warning_sent BOOLEAN DEFAULT FALSE
+                warning_sent BOOLEAN DEFAULT FALSE,
+                online BOOLEAN DEFAULT FALSE
             )
         """)
         await conn.execute("""
@@ -80,4 +81,3 @@ async def init_db(pool):
                 timestamp TIMESTAMP DEFAULT NOW()
             )
         """)
-

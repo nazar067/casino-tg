@@ -60,7 +60,22 @@ def game_buttons(game_id: int, bet: int, language: str) -> InlineKeyboardMarkup:
         ]
     )
     
-def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
+def online_game_buttons(game_id: int, bet: int, language: str) -> InlineKeyboardMarkup:
+    """
+    Создаёт клавиатуру с кнопками для игры (Присоединиться и Отмена).
+    """
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=dice_translation["cancel_btn"][language],
+                    callback_data=f"cancel_game:{game_id}"
+                )
+            ]
+        ]
+    )
+    
+def cancel_withdraw_keyboard(language: str) -> InlineKeyboardMarkup:
     """
     Создание клавиатуры с кнопкой "Отмена".
     """
