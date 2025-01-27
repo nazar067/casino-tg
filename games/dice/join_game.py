@@ -84,10 +84,10 @@ async def join_game_handler(callback: CallbackQuery, pool, online: bool = False)
         player2_username = callback.from_user.username
 
         new_message_text_player1 = dice_translation["game_start_online1_msg"][player1_language].format(
-            game_id=game_id, player1_id=player1_username, user_id=player2_username
+            game_id=game_id, bet=game["bet"], player1_id=player1_username, user_id=player2_username
         )
         new_message_text_player2 = dice_translation["game_start_online2_msg"][chat_language].format(
-            game_id=game_id, player1_id=player1_username, user_id=player2_username
+            game_id=game_id, bet=game["bet"], player1_id=player1_username, user_id=player2_username
         )
         new_message_text_offline = dice_translation["game_start_msg"][chat_language].format(
             game_id=game_id, player1_id=player1_username, user_id=player2_username

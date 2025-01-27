@@ -39,7 +39,7 @@ async def cancel_game_handler(callback: CallbackQuery, pool, state):
 
     data = await state.get_data()
     creator_message_id = data.get("creator_message_id")
-    game_message_id = data.get("game_message_id")
+    game_message_id = game["start_msg_id"]
 
     try:
         if creator_message_id:

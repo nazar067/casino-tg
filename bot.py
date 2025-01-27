@@ -1,5 +1,3 @@
-from games.dice.process_game_online import handle_dice_online_roll
-from games.dice.search_online_dice import search_dice
 from logs.write_server_errors import setup_logging
 setup_logging()
 
@@ -13,6 +11,7 @@ from privacy.privacy import get_privacy
 from bot_settings.commands import set_bot_commands
 from bot_settings.description import set_bot_description
 from bot_settings.short_description import set_bot_short_description
+from games.dice.process_game_online import handle_dice_online_roll
 from finance.payment import process_payment, handle_successful_payment
 from keyboards.keyboard import language_keyboard
 from logs.send_server_errors import send_server_logs
@@ -29,6 +28,7 @@ from games.dice.join_game import join_game_handler, router as join_game_router
 from games.dice.cancel_game import cancel_game_handler, periodic_cleanup, router as cancel_game_router
 from games.dice.process_game import handle_dice_roll, router as process_game_router
 from handlers.history_handler import history_pagination_handler, router as history_router
+from handlers.dice_online_bet_handler import search_dice_handler, router as dice_bet_route
 from finance.commission import commission_withdraw_handler, variance_handler
 from localisation.translations.finance import translations as finance_translation
 from localisation.translations.general import translations as general_translation
@@ -40,6 +40,7 @@ dp.include_router(join_game_router)
 dp.include_router(cancel_game_router)
 dp.include_router(process_game_router)
 dp.include_router(history_router)
+dp.include_router(dice_bet_route)
 router = Router()
 
 @router.message(Command(commands=["start"]))
@@ -71,7 +72,8 @@ async def online_dice_handler(message: Message, state: FSMContext):
     Команда /searchdice для создания игры в кости.
     """
     pool = dp["db_pool"]
-    await search_dice(pool, bot, message, min_bet=10, max_bet=30)
+    user_language = await get_language(pool, message.chat.id)
+    await search_dice_handler(message, dp, user_language, state)
     
 @router.message(Command(commands=["serverLogs"]))
 async def server_logs(message: Message):

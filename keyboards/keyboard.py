@@ -75,7 +75,7 @@ def online_game_buttons(game_id: int, bet: int, language: str) -> InlineKeyboard
         ]
     )
     
-def cancel_keyboard(language: str) -> InlineKeyboardMarkup:
+def cancel_withdraw_keyboard(language: str) -> InlineKeyboardMarkup:
     """
     Создание клавиатуры с кнопкой "Отмена".
     """
