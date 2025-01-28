@@ -213,9 +213,9 @@ async def main():
     await init_db(pool)
     dp.include_router(router)
     
-    #await set_bot_description(bot)
-    #await set_bot_commands(bot)
-    #await set_bot_short_description(bot)
+    await set_bot_description(bot)
+    await set_bot_commands(bot)
+    await set_bot_short_description(bot)
     
     asyncio.create_task(periodic_cleanup(pool, bot))
 
