@@ -16,7 +16,7 @@ async def create_game_handler(message: Message, pool, state, online=False):
     """
     user_id = message.from_user.id
     user_language = await get_language(pool, message.chat.id)
-    if message.chat.type != "group":
+    if message.chat.type not in ["group", "supergroup"]:
         await message.reply(finance_translation["withdraw_group_chat_error"][user_language])
         return
 
