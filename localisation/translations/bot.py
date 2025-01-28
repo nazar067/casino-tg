@@ -24,6 +24,11 @@ translations = {
         "ru": "Начать игру в кости",
         "uk": "Почати гру в кості",
     },
+    "dice_online_command_desc": {
+        "en": "Search for online dice games",
+        "ru": "Поиск онлайн игры в кости",
+        "uk": "Пошук онлайн гри в кубик",
+    },
     "privacy_command_desc": {
         "en": "User Agreement",
         "ru": "Пользовательское соглашение",

@@ -61,14 +61,6 @@ async def dice_handler(message: Message, state: FSMContext):
 @router.message(Command(commands=["diceonline"]))
 async def online_dice_handler(message: Message, state: FSMContext):
     """
-    Команда /diceonline для создания игры в кости.
-    """
-    pool = dp["db_pool"]
-    await create_game_handler(message, pool, state, True)
-    
-@router.message(Command(commands=["searchdice"]))
-async def online_dice_handler(message: Message, state: FSMContext):
-    """
     Команда /searchdice для создания игры в кости.
     """
     pool = dp["db_pool"]

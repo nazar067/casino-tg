@@ -3,6 +3,7 @@ from aiogram import Dispatcher, Router
 
 from games.dice.check_active_game import has_active_game
 from localisation.translations.dice import translations as dice_translation
+from localisation.translations.finance import translations as finance_translation
 from localisation.get_language import get_language
 from user.balance import get_user_balance
 from keyboards.keyboard import game_buttons, online_game_buttons
@@ -15,6 +16,9 @@ async def create_game_handler(message: Message, pool, state, online=False):
     """
     user_id = message.from_user.id
     user_language = await get_language(pool, message.chat.id)
+    if message.chat.type != "group":
+        await message.reply(finance_translation["withdraw_group_chat_error"][user_language])
+        return
 
     if await has_active_game(pool, user_id):
         await message.reply(dice_translation["error_already_in_game_msg"][user_language])

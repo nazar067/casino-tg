@@ -24,6 +24,9 @@ async def search_dice_handler(message: Message, dp: Dispatcher, user_language: s
     """
     pool = dp["db_pool"]
     user_id = message.from_user.id
+    if message.chat.type != "private":
+        await message.reply(finance_translation["withdraw_private_chat_error"][user_language])
+        return
 
     if await has_active_game(pool, user_id):
         await message.reply(dice_translation["error_already_in_game_msg"][user_language])

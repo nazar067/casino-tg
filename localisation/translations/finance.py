@@ -69,6 +69,11 @@ translations = {
         "ru": "⚠️ Эта команда доступна только в личных сообщениях.",
         "uk": "⚠️ Ця команда доступна тільки в особистих повідомленнях.",
     },
+    "withdraw_group_chat_error": {
+        "en": "⚠️ This command is only available in groups.",
+        "ru": "⚠️ Эта команда доступна только в группах.",
+        "uk": "⚠️ Ця команда доступна тільки в групах.",
+    },
     "withdraw_active_game_error": {
         "en": "⚠️ You cannot withdraw stars while you are in an active game.",
         "ru": "⚠️ Вы не можете выводить звёзды, пока участвуете в активной игре.",

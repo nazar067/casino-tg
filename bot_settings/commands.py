@@ -8,19 +8,19 @@ async def set_bot_commands(bot: Bot):
     """
     private_commands_en = [
         BotCommand(command="start", description=bot_translation["start_command_desc"]["en"]),
-        BotCommand(command="dice", description=bot_translation["dice_command_desc"]["en"]),
+        BotCommand(command="diceonline", description=bot_translation["dice_online_command_desc"]["en"]),
         BotCommand(command="privacy", description=bot_translation["privacy_command_desc"]["en"]),
         BotCommand(command="changelang", description=bot_translation["changelang_command_desc"]["en"]),
     ]
     private_commands_uk = [
         BotCommand(command="start", description=bot_translation["start_command_desc"]["uk"]),
-        BotCommand(command="dice", description=bot_translation["dice_command_desc"]["uk"]),
+        BotCommand(command="diceonline", description=bot_translation["dice_online_command_desc"]["uk"]),
         BotCommand(command="privacy", description=bot_translation["privacy_command_desc"]["uk"]),
         BotCommand(command="changelang", description=bot_translation["changelang_command_desc"]["uk"]),
     ]
     private_commands_ru = [
         BotCommand(command="start", description=bot_translation["start_command_desc"]["ru"]),
-        BotCommand(command="dice", description=bot_translation["dice_command_desc"]["ru"]),
+        BotCommand(command="diceonline", description=bot_translation["dice_online_command_desc"]["ru"]),
         BotCommand(command="privacy", description=bot_translation["privacy_command_desc"]["ru"]),
         BotCommand(command="changelang", description=bot_translation["changelang_command_desc"]["ru"]),
     ]
