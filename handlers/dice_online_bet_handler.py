@@ -34,10 +34,6 @@ async def search_dice_handler(message: Message, dp: Dispatcher, user_language: s
 
     user_balance = await get_user_balance(pool, user_id)
 
-    if user_balance < 10:
-        await message.reply(dice_translation["low_balance_for_search"][user_language])
-        return
-
     sent_message = await message.reply(
         dice_translation["enter_min_bet_msg"][user_language],
         reply_markup=cancel_withdraw_keyboard(user_language),
@@ -68,6 +64,12 @@ async def get_min_bet(message: Message, state: FSMContext):
         return
 
     min_bet = int(message.text)
+    
+    if min_bet < 1:
+        error_message = await message.reply(dice_translation["lowest_min_bet_msg"][user_language])
+        message_ids.append(error_message.message_id)
+        await state.update_data(message_ids=message_ids)
+        return 
 
     if min_bet > user_balance:
         error_message = await message.reply(dice_translation["min_bet_exceeds_balance_msg"][user_language])
