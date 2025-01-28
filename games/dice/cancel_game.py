@@ -67,7 +67,7 @@ async def check_game_status(pool, bot):
 
         for game in expired_games_no_moves:
             user_language = await get_language(pool, game["chat_id"])
-            if game["online"] is True:
+            if game["online"] is True and game["player2_id"] is not None:
                 player2_language = await get_language(pool, game["player2_id"])
                 await bot.send_message(
                     chat_id=game["player2_id"],
