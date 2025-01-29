@@ -174,7 +174,7 @@ async def recomend_bet(pool):
 
         if game:
             bet = game["bet"]
-            recomend_min_bet = max(bet - 20, 1)
+            recomend_min_bet = bet
             recomend_max_bet = bet + 20
             return recomend_min_bet, recomend_max_bet
         return 50, 100
