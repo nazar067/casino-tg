@@ -185,14 +185,14 @@ translations = {
         "uk": "🎲 @{user_name} кинув кубик зі значенням {dice_value}.\n\nВаш хід!",
     },
     "enter_min_bet_msg": {
-        "en": "Please enter the minimum bet amount.",
-        "ru": "Пожалуйста, введите минимальную ставку.",
-        "uk": "Будь ласка, введіть мінімальну ставку."
+        "en": "Please enter the minimum bet amount.\n\n_Recommended bet from {recomend_min_bet} to {recomend_max_bet}_",
+        "ru": "Пожалуйста, введите минимальную ставку.\n\n_Рекомендованая ставка от {recomend_min_bet} до {recomend_max_bet}_",
+        "uk": "Будь ласка, введіть мінімальну ставку.\n\n_Рекомендована ставка від {recomend_min_bet} до {recomend_max_bet}_"
     },
     "enter_max_bet_msg": {
-        "en": "Please enter the maximum bet amount.",
-        "ru": "Пожалуйста, введите максимальную ставку.",
-        "uk": "Будь ласка, введіть максимальну ставку."
+        "en": "Please enter the maximum bet amount.\n\n_Recommended bet from {recomend_min_bet} to {recomend_max_bet}_",
+        "ru": "Пожалуйста, введите максимальную ставку.\n\n_Рекомендованая ставка от {recomend_min_bet} до {recomend_max_bet}_",
+        "uk": "Будь ласка, введіть максимальну ставку.\n\n_Рекомендована ставка від {recomend_min_bet} до {recomend_max_bet}_"
     },
     "min_bet_exceeds_balance_msg": {
         "en": "The minimum bet cannot exceed your current balance.",

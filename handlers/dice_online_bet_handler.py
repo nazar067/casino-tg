@@ -33,10 +33,11 @@ async def search_dice_handler(message: Message, dp: Dispatcher, user_language: s
         return
 
     user_balance = await get_user_balance(pool, user_id)
-
+    recomend_min_bet, recomend_max_bet = await recomend_bet(pool) 
     sent_message = await message.reply(
-        dice_translation["enter_min_bet_msg"][user_language],
+        dice_translation["enter_min_bet_msg"][user_language].format(recomend_min_bet=recomend_min_bet, recomend_max_bet=recomend_max_bet).replace(".", "\\."),
         reply_markup=cancel_withdraw_keyboard(user_language),
+        parse_mode="MarkdownV2"
     )
 
     await state.set_state(SearchDiceStates.waiting_for_min_bet)
@@ -77,14 +78,18 @@ async def get_min_bet(message: Message, state: FSMContext):
         await state.update_data(message_ids=message_ids)
         return
 
-    # Удаляем сообщения предыдущего этапа
     for msg_id in message_ids:
         try:
             await message.bot.delete_message(message.chat.id, msg_id)
         except Exception:
             pass
 
-    sent_message = await message.reply(dice_translation["enter_max_bet_msg"][user_language], reply_markup=cancel_withdraw_keyboard(user_language),)
+    recomend_min_bet, recomend_max_bet = await recomend_bet(pool) 
+    sent_message = await message.reply(
+        dice_translation["enter_max_bet_msg"][user_language].format(recomend_min_bet=recomend_min_bet, recomend_max_bet=recomend_max_bet).replace(".", "\\."),
+        reply_markup=cancel_withdraw_keyboard(user_language),
+        parse_mode="MarkdownV2"
+        )
     await state.update_data(
         min_bet=min_bet,
         message_ids=[message.message_id, sent_message.message_id]
@@ -154,3 +159,24 @@ async def delete_all_messages(bot, chat_id, message_ids):
             await bot.delete_message(chat_id, message_id)
         except Exception:
             pass
+        
+async def recomend_bet(pool):
+    """
+    Ищет игру с минимальной ставкой среди активных онлайн-игр и рекомендует диапазон ставок.
+    """
+    async with pool.acquire() as connection:
+        game = await connection.fetchrow("""
+            SELECT bet FROM game_dice
+            WHERE is_closed = FALSE AND online = TRUE
+            ORDER BY bet ASC
+            LIMIT 1
+        """)
+
+        if game:
+            bet = game["bet"]
+            recomend_min_bet = max(bet - 20, 1)
+            recomend_max_bet = bet + 20
+            return recomend_min_bet, recomend_max_bet
+        return 50, 100
+
+    
