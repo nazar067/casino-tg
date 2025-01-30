@@ -26,8 +26,14 @@ async def start_handler(message: Message, dp: Dispatcher):
         user_language = language_code
     else:
         user_language = existing_language["language_code"]
-
-    await message.reply(
-        translations["welcome"][user_language],
-        reply_markup=menu_keyboard(user_language)
-    )
+        
+    if message.chat.type != "private":
+        await message.reply(
+            translations["welcome"][user_language],
+            reply_markup=menu_keyboard(user_language)
+        )
+    else:
+        await message.reply(
+            translations["welcome_private"][user_language],
+            reply_markup=menu_keyboard(user_language)
+        )
