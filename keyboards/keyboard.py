@@ -4,6 +4,7 @@ from localisation.translations.finance import translations as finance_translatio
 from localisation.translations.dice import translations as dice_translation
 
 amounts = [25, 50, 100, 250, 500, 1000, 2500, 10000] 
+amounts_withdraw = [25, 50, 100, 250, 500, 1000] 
 
 def payment_keyboard(language: str) -> InlineKeyboardMarkup:
     """
@@ -75,21 +76,21 @@ def online_game_buttons(game_id: int, bet: int, language: str) -> InlineKeyboard
         ]
     )
     
-def cancel_withdraw_keyboard(language: str) -> InlineKeyboardMarkup:
+def withdraw_keyboard(language: str) -> InlineKeyboardMarkup:
     """
-    Создание клавиатуры с кнопкой "Отмена".
+    Создание клавиатуры вывода с кнопкой "Отмена".
     """
     builder = InlineKeyboardBuilder()
-    text = finance_translation['donate'][language][2:-2]
-    for amount in amounts:
+    text = finance_translation['withdraw_btn'][language][2:-2]
+    for amount in amounts_withdraw:
         builder.button(
             text=f"{text}{amount}⭐️",
-            callback_data=f"pay:{amount}"
+            callback_data=f"withdraw:{amount}"
         )
-    builder.button(
-        text=finance_translation["cancel_btn"][language],
-        callback_data="cancel_withdraw"
-    )
+    # builder.button(
+    #     text=finance_translation["cancel_btn"][language],
+    #     callback_data="cancel_withdraw"
+    # )
     builder.adjust(2)
     return builder.as_markup()
 

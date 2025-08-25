@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from games.dice.check_active_game import has_active_game
 from games.dice.search_online_dice import search_dice
-from keyboards.keyboard import cancel_withdraw_keyboard
+from keyboards.keyboard import withdraw_keyboard
 from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 from user.balance import get_user_balance
@@ -34,7 +34,7 @@ async def search_dice_handler(message: Message, dp: Dispatcher, user_language: s
     recomend_min_bet, recomend_max_bet = await recomend_bet(pool) 
     sent_message = await message.reply(
         dice_translation["enter_min_bet_msg"][user_language].format(recomend_min_bet=recomend_min_bet, recomend_max_bet=recomend_max_bet).replace(".", "\\."),
-        reply_markup=cancel_withdraw_keyboard(user_language),
+        reply_markup=withdraw_keyboard(user_language),
         parse_mode="MarkdownV2"
     )
 
@@ -85,7 +85,7 @@ async def get_min_bet(message: Message, state: FSMContext):
     recomend_min_bet, recomend_max_bet = await recomend_bet(pool) 
     sent_message = await message.reply(
         dice_translation["enter_max_bet_msg"][user_language].format(recomend_min_bet=recomend_min_bet, recomend_max_bet=recomend_max_bet).replace(".", "\\."),
-        reply_markup=cancel_withdraw_keyboard(user_language),
+        reply_markup=withdraw_keyboard(user_language),
         parse_mode="MarkdownV2"
         )
     await state.update_data(

@@ -1,3 +1,4 @@
+from finance.withdraw import process_withdrawal
 from logs.write_server_errors import setup_logging
 setup_logging()
 
@@ -163,7 +164,16 @@ async def pay_stars_handler(callback: CallbackQuery):
     pool = dp["db_pool"]
     payment_data = await process_payment(callback, amount, provider_token, pool)
     if payment_data:
-        await callback.message.answer_invoice(**payment_data)        
+        await callback.message.answer_invoice(**payment_data)
+        
+@router.callback_query(lambda callback: callback.data.startswith("withdraw:"))
+async def process_withdrawal_handler(callback_query: CallbackQuery):
+    """
+    Обработка ввода суммы для вывода.
+    """
+    pool = dp["db_pool"]
+    user_language = await get_language(pool, callback_query.from_user.id)
+    await process_withdrawal(bot, pool, callback_query.from_user.id, int(callback_query.data.split(":")[1]), user_language)
 
 @router.pre_checkout_query()
 async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery):
@@ -187,7 +197,7 @@ async def successful_payment_handler(message: Message):
     await message.answer(finance_translation["donate_success"][user_language].format(final_amount=final_amount))
     
 @router.message()
-async def button_handler(message: Message, state: FSMContext):
+async def button_handler(message: Message):
     """
     Обработка всех кнопок на основе локализации
     """
@@ -200,7 +210,7 @@ async def button_handler(message: Message, state: FSMContext):
         text, keyboard = await donate_handler(message, dp, user_language)
         await message.reply(text, reply_markup=keyboard)
     elif message.text == finance_translation["withdraw_btn"][user_language]:
-        await withdraw_handler(message, dp, user_language, state)
+        await withdraw_handler(message, dp, user_language)
     elif message.text == finance_translation["history_btn"][user_language]:
         await history_handler(message, pool)
 

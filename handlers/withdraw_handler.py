@@ -5,7 +5,7 @@ from aiogram.fsm.state import StatesGroup, State
 from finance.check_withdrawable_stars import get_withdrawable_stars
 from finance.withdraw import process_withdrawal
 from games.dice.check_active_game import has_active_game
-from keyboards.keyboard import cancel_withdraw_keyboard, payment_keyboard
+from keyboards.keyboard import withdraw_keyboard
 from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 
@@ -14,7 +14,7 @@ router = Router()
 class WithdrawalState(StatesGroup):
     waiting_for_amount = State()
 
-async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str, state: FSMContext):
+async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str):
     """
     Хендлер для обработки кнопки "Вывести".
     """
@@ -30,65 +30,14 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
         return
 
     available_stars = await get_withdrawable_stars(pool, user_id)
+    if available_stars <= 0:
+        await message.reply(finance_translation["withdraw_unavailable"][user_language])
+        return
 
-    sent_message = await message.reply(
-        text=finance_translation["donate_text"][user_language],
-        reply_markup=cancel_withdraw_keyboard(user_language)
+    await message.reply(
+        text=finance_translation["withdraw_text"][user_language],
+        reply_markup=withdraw_keyboard(user_language)
     )
-
-    await state.set_state(WithdrawalState.waiting_for_amount)
-    await state.update_data(
-        available_stars=available_stars,
-        db_pool=dp["db_pool"],
-        message_ids=[message.message_id, sent_message.message_id]
-    )
-
-@router.message(WithdrawalState.waiting_for_amount)
-async def process_withdrawal_input(message: Message, state: FSMContext):
-    """
-    Обработка ввода суммы для вывода.
-    """
-    data = await state.get_data()
-    available_stars = data.get("available_stars")
-    db_pool = data.get("db_pool")
-    message_ids = data.get("message_ids", [])
-
-    if not db_pool:
-        await message.answer("Ошибка: подключение к базе данных не найдено.")
-        return
-
-    user_id = message.from_user.id
-    user_language = await get_language(db_pool, user_id)
-
-    if not message.text.isdigit():
-        error_message = await message.reply(finance_translation["invalid_amount"][user_language])
-        message_ids.append(error_message.message_id)
-        await state.update_data(message_ids=message_ids)
-        return
-
-    amount_to_withdraw = int(message.text)
-
-    if amount_to_withdraw < 1000:
-        error_message = await message.reply(finance_translation["min_withdraw"][user_language])
-        message_ids.append(error_message.message_id)
-        await state.update_data(message_ids=message_ids)
-        return
-
-    if amount_to_withdraw > available_stars:
-        error_message = await message.reply(
-            finance_translation["max_withdraw"][user_language].format(available_stars=available_stars)
-        )
-        message_ids.append(error_message.message_id)
-        await state.update_data(message_ids=message_ids)
-        return
-
-    result_message = await process_withdrawal(db_pool, user_id, amount_to_withdraw, user_language)
-    sent_message = await message.answer(result_message)
-
-    message_ids.append(message.message_id)
-    await delete_all_messages_except_last(message.bot, message.chat.id, message_ids, sent_message.message_id)
-
-    await state.clear()
 
 @router.callback_query(lambda callback: callback.data == "cancel_withdraw")
 async def cancel_withdraw(callback_query: CallbackQuery, state: FSMContext):

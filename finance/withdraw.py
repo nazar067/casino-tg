@@ -1,71 +1,38 @@
+import asyncio
+from aiogram import Bot
 from datetime import datetime, timedelta
-from finance.transactions import mark_transaction_as_closed
+from finance.account import account_withdrawal
+from finance.gifts import get_available_gifts, select_gifts
 from localisation.translations.finance import translations as finance_translation
+from user.balance import get_user_balance
 
-async def process_withdrawal(pool, user_id, amount, user_language):
+async def process_withdrawal(bot: Bot, pool, user_id, amount, user_language):
     """
     Обработка вывода звёзд.
     """
-    async with pool.acquire() as connection:
-        cutoff_date = datetime.now() - timedelta(days=21)
-
-        transactions = await connection.fetch("""
-            SELECT id, amount
-            FROM transaction_for_withdraw
-            WHERE user_id = $1 AND timestamp <= $2 AND is_closed = FALSE
-            ORDER BY timestamp ASC
-        """, user_id, cutoff_date)
-
-        remaining_to_withdraw = amount
-        withdrawals = []
-
-        for transaction in transactions:
-            if remaining_to_withdraw <= 0:
-                break
-
-            transaction_id = transaction["id"]
-            transaction_amount = transaction["amount"]
-
-            amount_to_withdraw = min(transaction_amount, remaining_to_withdraw)
-
-            withdraw_id = await connection.fetchval("""
-                INSERT INTO withdrawals (transaction_id, amount)
-                VALUES ($1, $2)
-                RETURNING id
-            """, transaction_id, amount_to_withdraw)
-
-            await connection.execute("""
-                UPDATE transaction_for_withdraw
-                SET amount = amount - $1
-                WHERE id = $2
-            """, amount_to_withdraw, transaction_id)
-
-            remaining_amount = await connection.fetchval("""
-                SELECT amount
-                FROM transaction_for_withdraw
-                WHERE id = $1
-            """, transaction_id)
-
-            if remaining_amount == 0:
-                await mark_transaction_as_closed(pool, transaction_id)
-
-            withdrawals.append((withdraw_id, transaction_id, amount_to_withdraw))
-            remaining_to_withdraw -= amount_to_withdraw
-
-        await connection.execute("""
-            UPDATE users
-            SET balance = balance - $1
-            WHERE user_id = $2
-        """, amount, user_id)
-
-        withdrawal_details = "\n".join(
-            finance_translation["withdraw_detail"][user_language].format(
-                withdraw_id=w[0], transaction_id=w[1], amount=w[2]
-            )
-            for w in withdrawals
+    user_balance = await get_user_balance(pool, user_id)
+    if(user_balance < amount):
+        await bot.send_message(
+            chat_id=user_id,
+            text=finance_translation["withdraw_unavailable"][user_language]
         )
-
-        return finance_translation["withdraw_success"][user_language].format(
-            amount=amount, details=withdrawal_details
+        return
+    
+    gifts = await get_available_gifts(bot)
+    gifts_for_withdrawal = await select_gifts(gifts, amount)
+    
+    if gifts_for_withdrawal is None:
+        await bot.send_message(
+            chat_id=user_id,
+            text=finance_translation["withdraw_no_exact_gift_combination"][user_language]
         )
-        
+        return
+    
+    updated_user_balance = user_balance - amount
+    await account_withdrawal(pool, user_id, updated_user_balance)
+    
+    for gift in gifts_for_withdrawal:
+        await bot.send_gift(user_id, gift)
+        await asyncio.sleep(1)
+    
+    
