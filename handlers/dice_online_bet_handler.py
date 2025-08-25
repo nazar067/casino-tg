@@ -2,8 +2,6 @@ from aiogram.types import Message, CallbackQuery
 from aiogram import Dispatcher, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from finance.check_withdrawable_stars import get_withdrawable_stars
-from finance.withdraw import check_withdrawable_stars, process_withdrawal
 from games.dice.check_active_game import has_active_game
 from games.dice.search_online_dice import search_dice
 from keyboards.keyboard import cancel_withdraw_keyboard

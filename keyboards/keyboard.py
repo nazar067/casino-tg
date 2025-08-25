@@ -80,10 +80,17 @@ def cancel_withdraw_keyboard(language: str) -> InlineKeyboardMarkup:
     Создание клавиатуры с кнопкой "Отмена".
     """
     builder = InlineKeyboardBuilder()
+    text = finance_translation['donate'][language][2:-2]
+    for amount in amounts:
+        builder.button(
+            text=f"{text}{amount}⭐️",
+            callback_data=f"pay:{amount}"
+        )
     builder.button(
         text=finance_translation["cancel_btn"][language],
         callback_data="cancel_withdraw"
     )
+    builder.adjust(2)
     return builder.as_markup()
 
 def pagination_keyboard(total_items: int, current_page: int, page_size: int, language: str) -> InlineKeyboardMarkup:

@@ -2,22 +2,6 @@ from datetime import datetime, timedelta
 from finance.transactions import mark_transaction_as_closed
 from localisation.translations.finance import translations as finance_translation
 
-async def check_withdrawable_stars(pool, user_id):
-    """
-    Проверка доступных звёзд для вывода
-    """
-    async with pool.acquire() as connection:
-        cutoff_date = datetime.now() - timedelta(days=21)
-        available_stars = await connection.fetchval("""
-            SELECT COALESCE(SUM(amount), 0)
-            FROM transaction_for_withdraw
-            WHERE user_id = $1 AND timestamp <= $2
-        """, user_id, cutoff_date)
-
-    if available_stars >= 1000:
-        return True
-    return False
-
 async def process_withdrawal(pool, user_id, amount, user_language):
     """
     Обработка вывода звёзд.

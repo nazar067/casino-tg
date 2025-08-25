@@ -3,9 +3,9 @@ from aiogram import Dispatcher, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from finance.check_withdrawable_stars import get_withdrawable_stars
-from finance.withdraw import check_withdrawable_stars, process_withdrawal
+from finance.withdraw import process_withdrawal
 from games.dice.check_active_game import has_active_game
-from keyboards.keyboard import cancel_withdraw_keyboard
+from keyboards.keyboard import cancel_withdraw_keyboard, payment_keyboard
 from localisation.get_language import get_language
 from localisation.translations.finance import translations as finance_translation
 
@@ -29,17 +29,10 @@ async def withdraw_handler(message: Message, dp: Dispatcher, user_language: str,
         await message.reply(finance_translation["withdraw_active_game_error"][user_language])
         return
 
-    stars_available = await check_withdrawable_stars(pool, user_id)
     available_stars = await get_withdrawable_stars(pool, user_id)
-    if not stars_available:
-        await message.reply(
-            finance_translation["withdraw_unavailable"][user_language].format(available_stars=available_stars)
-        )
-        return
 
     sent_message = await message.reply(
-        finance_translation["withdraw_available"][user_language].format(available_stars=available_stars) +
-        finance_translation["withdraw"][user_language],
+        text=finance_translation["donate_text"][user_language],
         reply_markup=cancel_withdraw_keyboard(user_language)
     )
 
